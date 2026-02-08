@@ -1791,8 +1791,33 @@ class MarketplaceScene extends Phaser.Scene {
     const isMoving = dx !== 0 || dy !== 0;
 
     if (isMoving) {
-      this.player.x = Phaser.Math.Clamp(this.player.x + dx, 20, 1356);
-      this.player.y = Phaser.Math.Clamp(this.player.y + dy, 20, 732);
+      let newX = Phaser.Math.Clamp(this.player.x + dx, 20, 1356);
+      let newY = Phaser.Math.Clamp(this.player.y + dy, 20, 732);
+
+      // === LAKE BOUNDARY ===
+      // Lake rect and platform entry gap at top-left
+      const LAKE = { x1: 490, y1: 235, x2: 870, y2: 430 };
+      const ENTRY = { x1: 470, y1: 220, x2: 545, y2: 260 }; // platform dock
+      const inLake = (px, py) => px > LAKE.x1 && px < LAKE.x2 && py > LAKE.y1 && py < LAKE.y2;
+      const inEntry = (px, py) => px > ENTRY.x1 && px < ENTRY.x2 && py > ENTRY.y1 && py < ENTRY.y2;
+      const wasInLake = inLake(this.player.x, this.player.y);
+      const willBeInLake = inLake(newX, newY);
+
+      if (willBeInLake && !wasInLake) {
+        // Trying to enter the lake — only allow through the entry platform
+        if (!inEntry(this.player.x, this.player.y) && !inEntry(newX, newY)) {
+          // Block: keep whichever axis would enter the lake, allow the other
+          const wouldXEnter = inLake(newX, this.player.y);
+          const wouldYEnter = inLake(this.player.x, newY);
+          if (wouldXEnter) newX = this.player.x;
+          if (wouldYEnter) newY = this.player.y;
+          // If both blocked, don't move at all
+          if (inLake(newX, newY)) { newX = this.player.x; newY = this.player.y; }
+        }
+      }
+
+      this.player.x = newX;
+      this.player.y = newY;
       this.player.setDepth(this.player.y + 10000);
       this.playerLabel.setPosition(this.player.x, this.player.y - 38);
       if (time - this.moveTimer > 50) {
