@@ -335,7 +335,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Invite
+  // Invite — sends a popup to the target player
   socket.on('inviteToPlot', ({ username }) => {
     const player = players[socket.id];
     if (!player) return;
@@ -349,18 +349,20 @@ io.on('connection', (socket) => {
     const plot = Object.values(db.plots).find(p => p.ownerId === player.id);
     if (!plot) return;
 
+    // Grant visitor access
     if (!plot.visitors.includes(targetUser.id)) {
       plot.visitors.push(targetUser.id);
       debouncedSave();
     }
 
-    socket.emit('chatMessage', { from: 'System', text: `Invited ${username} to your plot!` });
+    socket.emit('chatMessage', { from: 'System', text: `Invite sent to ${username}!` });
 
+    // Find the target's socket and send them an invite popup
     for (const [sid, p] of Object.entries(players)) {
       if (p.id === targetUser.id) {
-        io.to(sid).emit('chatMessage', {
-          from: 'System',
-          text: `${player.username} invited you to their plot! Use /visit ${player.username}`
+        io.to(sid).emit('plotInvite', {
+          fromUsername: player.username,
+          plotOwnerId: player.id
         });
       }
     }

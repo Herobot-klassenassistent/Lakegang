@@ -2448,6 +2448,29 @@ socket.on('onlinePlayers', (p) => updatePlayersList(p));
 socket.on('doVisitPlot', ({plotOwnerId}) => socket.emit('enterPlot', {plotOwnerId}));
 socket.on('doInvite', ({username}) => socket.emit('inviteToPlot', {username}));
 
+// Invite popup system
+socket.on('plotInvite', ({ fromUsername, plotOwnerId }) => {
+  const popup = document.getElementById('invite-popup');
+  const msg = document.getElementById('invite-message');
+  msg.textContent = `${fromUsername} invited you to their plot!`;
+  popup.style.display = 'block';
+
+  // Auto-dismiss after 15 seconds
+  const autoDismiss = setTimeout(() => { popup.style.display = 'none'; }, 15000);
+
+  document.getElementById('invite-accept').onclick = () => {
+    clearTimeout(autoDismiss);
+    popup.style.display = 'none';
+    socket.emit('enterPlot', { plotOwnerId: plotOwnerId });
+    addChatMessage('System', `Teleporting to ${fromUsername}'s plot...`, true);
+  };
+  document.getElementById('invite-decline').onclick = () => {
+    clearTimeout(autoDismiss);
+    popup.style.display = 'none';
+    addChatMessage('System', `Declined invite from ${fromUsername}.`, true);
+  };
+});
+
 document.addEventListener('keydown', (e) => {
   if (e.key==='e'||e.key==='E') {
     if (document.activeElement===document.getElementById('chat-input')) return;
