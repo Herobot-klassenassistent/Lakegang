@@ -390,6 +390,13 @@ io.on('connection', (socket) => {
     io.to(player.scene).emit('chatMessage', { from: player.username, text });
   });
 
+  // Request players in current scene (called when scene loads)
+  socket.on('requestPlayersUpdate', () => {
+    const player = players[socket.id];
+    if (!player) return;
+    socket.emit('playersUpdate', getPlayersInScene(player.scene));
+  });
+
   // Online players
   socket.on('getOnlinePlayers', () => {
     const online = Object.values(players).map(p => ({

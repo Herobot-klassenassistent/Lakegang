@@ -1774,6 +1774,9 @@ class MarketplaceScene extends Phaser.Scene {
     gameState.isInPlot = false;
     gameState.currentScene = 'marketplace';
     updateUI();
+
+    // Request current players in the scene so we see anyone already here
+    socket.emit('requestPlayersUpdate');
   }
 
   update(time) {
@@ -2063,6 +2066,8 @@ class PlotScene extends Phaser.Scene {
     gameState.isInPlot = true;
     gameState.currentScene = 'plot_' + (plotData ? plotData.id : '');
     updateUI();
+
+    socket.emit('requestPlayersUpdate');
   }
 
   update(time) {
