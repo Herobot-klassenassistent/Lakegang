@@ -1427,7 +1427,7 @@ class BootScene extends Phaser.Scene {
     this.generateMapTiles();
 
     // Load marketplace background
-    this.load.image('marketplace_bg', '/assets/background.jpg');
+    this.load.image('marketplace_bg', '/assets/BACKGROUND.jpg');
   }
 
   // Load a character spritesheet by number and create animations with a unique key prefix
