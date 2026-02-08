@@ -1735,8 +1735,8 @@ class MarketplaceScene extends Phaser.Scene {
 
     // === HOUSE PORTAL TO PLOTS ===
     // Invisible zone positioned over the little house on the background
-    this.doorZone = this.add.zone(1030, 330, 80, 80);
-    this.doorLabel = this.add.text(1030, 270, 'ENTER PLOT [E]', {
+    this.doorZone = this.add.zone(1030, 340, 100, 100);
+    this.doorLabel = this.add.text(1030, 280, 'ENTER PLOT [E]', {
       fontSize: '11px', fontFamily: 'Courier New', color: '#53d769',
       stroke: '#000', strokeThickness: 3
     }).setOrigin(0.5).setDepth(10000);
@@ -1822,10 +1822,10 @@ class MarketplaceScene extends Phaser.Scene {
     // House portal proximity
     if (this.doorZone) {
       const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.doorZone.x, this.doorZone.y);
-      if (dist < 60) {
+      if (dist < 80) {
         this.doorLabel.setAlpha(1);
       } else {
-        this.doorLabel.setAlpha(dist < 130 ? 0.6 : 0);
+        this.doorLabel.setAlpha(dist < 150 ? 0.6 : 0);
       }
     }
   }
@@ -2429,7 +2429,7 @@ document.addEventListener('keydown', (e) => {
     if (!gameState.isInPlot) {
       const scene = gameState.game?.scene?.getScene('Marketplace');
       if (scene?.player && scene?.doorZone) {
-        if (Phaser.Math.Distance.Between(scene.player.x,scene.player.y,scene.doorZone.x,scene.doorZone.y)<60)
+        if (Phaser.Math.Distance.Between(scene.player.x,scene.player.y,scene.doorZone.x,scene.doorZone.y)<80)
           socket.emit('enterPlot', { plotOwnerId: gameState.user.id });
       }
     } else {
