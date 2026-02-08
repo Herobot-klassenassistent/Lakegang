@@ -1893,6 +1893,55 @@ class MarketplaceScene extends Phaser.Scene {
       op.label.setPosition(x, y - 38).setDepth(y + 1);
     }
   }
+  showChatBubble(username, text) {
+    // Find the sprite to attach to
+    let targetSprite = null;
+    if (gameState.user && username === gameState.user.username) {
+      targetSprite = this.player;
+    } else if (this.otherPlayers) {
+      for (const op of Object.values(this.otherPlayers)) {
+        if (op.label && op.label.text === username) { targetSprite = op.sprite; break; }
+      }
+    }
+    if (!targetSprite) return;
+
+    // Truncate long messages
+    const msg = text.length > 40 ? text.slice(0, 37) + '...' : text;
+
+    // Create bubble background + text
+    const bx = targetSprite.x;
+    const by = targetSprite.y - 55;
+    const bubbleText = this.add.text(bx, by, msg, {
+      fontSize: '10px', fontFamily: 'Courier New', color: '#1a1a2e',
+      backgroundColor: '#fff', padding: { x: 6, y: 4 },
+      wordWrap: { width: 160 }, align: 'center',
+      stroke: '#000', strokeThickness: 0
+    }).setOrigin(0.5, 1).setDepth(20000);
+
+    // Add rounded border look
+    bubbleText.setStyle({ backgroundColor: '#f0f0f0' });
+
+    // Small tail triangle
+    const tail = this.add.triangle(bx, by + 2, 0, 0, 10, 0, 5, 6, 0xf0f0f0).setDepth(20000);
+
+    // Animate: float up slightly then fade out
+    this.tweens.add({
+      targets: [bubbleText, tail],
+      alpha: 0,
+      y: '-=10',
+      delay: 3000,
+      duration: 500,
+      onComplete: () => { bubbleText.destroy(); tail.destroy(); }
+    });
+
+    // Track bubble so it moves with the player
+    const updateBubble = () => {
+      if (!targetSprite.active || !bubbleText.active) return;
+      bubbleText.setPosition(targetSprite.x, targetSprite.y - 55);
+      tail.setPosition(targetSprite.x, targetSprite.y - 55 + 2);
+    };
+    this.time.addEvent({ delay: 16, callback: updateBubble, repeat: 218 }); // ~3.5s
+  }
 }
 
 // ============================================================
@@ -2130,6 +2179,44 @@ class PlotScene extends Phaser.Scene {
       op.label.setPosition(x, y - 38).setDepth(y + 1);
     }
   }
+  showChatBubble(username, text) {
+    let targetSprite = null;
+    if (gameState.user && username === gameState.user.username) {
+      targetSprite = this.player;
+    } else if (this.otherPlayers) {
+      for (const op of Object.values(this.otherPlayers)) {
+        if (op.label && op.label.text === username) { targetSprite = op.sprite; break; }
+      }
+    }
+    if (!targetSprite) return;
+
+    const msg = text.length > 40 ? text.slice(0, 37) + '...' : text;
+    const bx = targetSprite.x;
+    const by = targetSprite.y - 55;
+    const bubbleText = this.add.text(bx, by, msg, {
+      fontSize: '10px', fontFamily: 'Courier New', color: '#1a1a2e',
+      backgroundColor: '#f0f0f0', padding: { x: 6, y: 4 },
+      wordWrap: { width: 160 }, align: 'center'
+    }).setOrigin(0.5, 1).setDepth(20000);
+
+    const tail = this.add.triangle(bx, by + 2, 0, 0, 10, 0, 5, 6, 0xf0f0f0).setDepth(20000);
+
+    this.tweens.add({
+      targets: [bubbleText, tail],
+      alpha: 0,
+      y: '-=10',
+      delay: 3000,
+      duration: 500,
+      onComplete: () => { bubbleText.destroy(); tail.destroy(); }
+    });
+
+    const updateBubble = () => {
+      if (!targetSprite.active || !bubbleText.active) return;
+      bubbleText.setPosition(targetSprite.x, targetSprite.y - 55);
+      tail.setPosition(targetSprite.x, targetSprite.y - 55 + 2);
+    };
+    this.time.addEvent({ delay: 16, callback: updateBubble, repeat: 218 });
+  }
 }
 
 // ============================================================
@@ -2319,7 +2406,14 @@ socket.on('enteredMarketplace', () => {
 socket.on('itemPlaced', (item) => { const s = gameState.game?.scene?.getScene('Plot'); if (s?.addPlacedItem) s.addPlacedItem(item); });
 socket.on('itemRemoved', (itemId) => { const s = gameState.game?.scene?.getScene('Plot'); if (s?.removePlacedItem) s.removePlacedItem(itemId); });
 socket.on('itemMoved', ({itemId,x,y}) => { const s = gameState.game?.scene?.getScene('Plot'); if (s?.movePlacedItem) s.movePlacedItem(itemId,x,y); });
-socket.on('chatMessage', ({from,text}) => addChatMessage(from, text, from==='System'));
+socket.on('chatMessage', ({from,text}) => {
+  addChatMessage(from, text, from==='System');
+  // Show bubble over character's head (skip system messages)
+  if (from !== 'System') {
+    const s = gameState.game?.scene?.getScene(gameState.isInPlot ? 'Plot' : 'Marketplace');
+    if (s?.showChatBubble) s.showChatBubble(from, text);
+  }
+});
 socket.on('onlinePlayers', (p) => updatePlayersList(p));
 socket.on('doVisitPlot', ({plotOwnerId}) => socket.emit('enterPlot', {plotOwnerId}));
 socket.on('doInvite', ({username}) => socket.emit('inviteToPlot', {username}));
