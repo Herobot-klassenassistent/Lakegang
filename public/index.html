@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Treeverse Plots</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #1a1a2e; font-family: 'Courier New', monospace; overflow: hidden; }
+
+    #login-screen {
+      position: fixed; inset: 0; z-index: 100;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+    #login-screen h1 {
+      font-size: 48px; color: #53d769; margin-bottom: 8px;
+      text-shadow: 0 0 20px rgba(83,215,105,0.5);
+      letter-spacing: 4px;
+    }
+    #login-screen .subtitle {
+      color: #7ec8e3; font-size: 14px; margin-bottom: 40px; letter-spacing: 2px;
+    }
+    #login-screen input {
+      width: 280px; padding: 12px 16px; font-size: 16px;
+      background: #16213e; border: 2px solid #53d769; color: #e0e0e0;
+      border-radius: 4px; font-family: inherit; outline: none;
+    }
+    #login-screen input:focus { border-color: #7ec8e3; }
+    #login-screen button {
+      margin-top: 16px; padding: 12px 40px; font-size: 16px;
+      background: #53d769; color: #1a1a2e; border: none;
+      border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold;
+      letter-spacing: 2px;
+    }
+    #login-screen button:hover { background: #7ec8e3; }
+    #login-error { color: #ff6b6b; margin-top: 12px; font-size: 13px; }
+
+    /* Character Creator */
+    #creator-screen {
+      position: fixed; inset: 0; z-index: 99; display: none;
+      background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      overflow-y: auto;
+    }
+    #creator-screen .creator-inner {
+      max-width: 900px; margin: 0 auto; padding: 30px 20px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    #creator-screen h2 {
+      font-size: 32px; color: #53d769; margin-bottom: 4px;
+      text-shadow: 0 0 15px rgba(83,215,105,0.4); letter-spacing: 3px;
+    }
+    #creator-screen .creator-sub {
+      color: #7ec8e3; font-size: 12px; letter-spacing: 2px; margin-bottom: 24px;
+    }
+    #creator-content {
+      display: flex; gap: 30px; width: 100%; justify-content: center;
+      flex-wrap: wrap;
+    }
+    #creator-preview {
+      flex: 0 0 260px; display: flex; flex-direction: column; align-items: center;
+      background: rgba(15,52,96,0.5); border: 1px solid #53d769; border-radius: 8px;
+      padding: 20px; position: sticky; top: 20px; height: fit-content;
+    }
+    #creator-preview canvas {
+      image-rendering: pixelated; width: 192px; height: 192px;
+      border: 2px solid #333; border-radius: 4px; background: #0a0a1a;
+    }
+    #creator-preview .char-name {
+      color: #fff; font-size: 14px; margin-top: 12px; letter-spacing: 1px;
+    }
+    #creator-preview .char-class {
+      color: #7ec8e3; font-size: 11px; margin-top: 4px;
+    }
+    #creator-traits {
+      flex: 1; min-width: 300px; max-width: 520px;
+    }
+    .trait-group {
+      margin-bottom: 16px; background: rgba(15,52,96,0.4);
+      border: 1px solid #2a3a5a; border-radius: 6px; padding: 12px;
+    }
+    .trait-group label {
+      display: block; color: #7ec8e3; font-size: 11px; letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    .trait-options {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .trait-btn {
+      padding: 6px 12px; background: rgba(26,26,46,0.8);
+      border: 1px solid #333; color: #aaa; border-radius: 4px;
+      cursor: pointer; font-family: inherit; font-size: 11px;
+      transition: all 0.15s;
+    }
+    .trait-btn:hover { border-color: #53d769; color: #fff; }
+    .trait-btn.selected { background: #53d769; color: #1a1a2e; border-color: #53d769; font-weight: bold; }
+    .trait-btn .color-dot {
+      display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+      margin-right: 4px; vertical-align: middle; border: 1px solid rgba(255,255,255,0.3);
+    }
+    #btn-enter-world {
+      margin-top: 20px; padding: 14px 48px; font-size: 16px;
+      background: #53d769; color: #1a1a2e; border: none; border-radius: 6px;
+      cursor: pointer; font-family: inherit; font-weight: bold; letter-spacing: 3px;
+      text-transform: uppercase; transition: background 0.2s;
+    }
+    #btn-enter-world:hover { background: #7ec8e3; }
+    #btn-randomize {
+      margin-top: 10px; padding: 8px 24px; font-size: 12px;
+      background: transparent; color: #7ec8e3; border: 1px solid #7ec8e3;
+      border-radius: 4px; cursor: pointer; font-family: inherit; letter-spacing: 1px;
+    }
+    #btn-randomize:hover { background: rgba(126,200,227,0.15); }
+
+    #game-container { position: relative; }
+
+    #chat-box {
+      position: fixed; bottom: 10px; left: 10px; width: 320px; z-index: 50;
+      background: rgba(26,26,46,0.9); border: 1px solid #53d769; border-radius: 6px;
+      font-family: 'Courier New', monospace;
+    }
+    #chat-messages {
+      height: 140px; overflow-y: auto; padding: 8px; font-size: 12px; color: #ccc;
+    }
+    #chat-messages .msg-system { color: #ffd93d; }
+    #chat-messages .msg-user { color: #7ec8e3; }
+    #chat-messages .msg-text { color: #e0e0e0; }
+    #chat-input-row { display: flex; border-top: 1px solid #333; }
+    #chat-input {
+      flex: 1; padding: 8px; background: transparent; border: none;
+      color: #e0e0e0; font-family: inherit; font-size: 12px; outline: none;
+    }
+    #chat-send {
+      padding: 8px 12px; background: #53d769; color: #1a1a2e;
+      border: none; cursor: pointer; font-family: inherit; font-weight: bold;
+    }
+
+    #ui-bar {
+      position: fixed; top: 10px; left: 10px; z-index: 50;
+      display: flex; gap: 8px; align-items: center;
+    }
+    .ui-btn {
+      padding: 6px 14px; background: rgba(26,26,46,0.9); border: 1px solid #53d769;
+      color: #53d769; font-family: inherit; font-size: 12px; cursor: pointer;
+      border-radius: 4px;
+    }
+    .ui-btn:hover { background: #53d769; color: #1a1a2e; }
+    .ui-btn.active { background: #53d769; color: #1a1a2e; }
+    #scene-label {
+      color: #7ec8e3; font-size: 14px; font-weight: bold; letter-spacing: 1px;
+      padding: 6px 14px; background: rgba(26,26,46,0.9); border-radius: 4px;
+      border: 1px solid #7ec8e3;
+    }
+
+    #decoration-panel {
+      position: fixed; right: 10px; top: 10px; width: 220px; z-index: 50;
+      background: rgba(26,26,46,0.95); border: 1px solid #53d769; border-radius: 6px;
+      display: none; max-height: 90vh; overflow-y: auto;
+    }
+    #decoration-panel h3 {
+      padding: 10px; color: #53d769; font-size: 14px; border-bottom: 1px solid #333;
+    }
+    .deco-category { padding: 6px 10px; color: #7ec8e3; font-size: 11px; text-transform: uppercase; }
+    .deco-item {
+      display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+      cursor: pointer; color: #ccc; font-size: 12px;
+    }
+    .deco-item:hover { background: rgba(83,215,105,0.15); }
+    .deco-item.selected { background: rgba(83,215,105,0.3); border-left: 3px solid #53d769; }
+    .deco-item canvas { image-rendering: pixelated; }
+
+    #players-panel {
+      position: fixed; right: 10px; bottom: 10px; z-index: 50;
+      background: rgba(26,26,46,0.9); border: 1px solid #53d769; border-radius: 6px;
+      padding: 8px 12px; min-width: 140px; display: none;
+    }
+    #players-panel h4 { color: #53d769; font-size: 12px; margin-bottom: 6px; }
+    .player-entry { color: #ccc; font-size: 11px; padding: 2px 0; }
+    .player-entry .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #53d769; margin-right: 6px; }
+
+    #minimap {
+      position: fixed; top: 10px; right: 240px; width: 120px; height: 90px;
+      background: rgba(26,26,46,0.8); border: 1px solid #53d769; border-radius: 4px;
+      z-index: 49; display: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="login-screen">
+  <h1>TREEVERSE</h1>
+  <div class="subtitle">NFTrees Community Plots</div>
+  <input id="username-input" type="text" placeholder="Enter username..." maxlength="16" autofocus>
+  <input id="char-number-input" type="number" placeholder="Character # (1-11111)" min="1" max="11111" style="
+    width: 280px; padding: 12px 16px; font-size: 16px; margin-top: 10px;
+    background: #16213e; border: 2px solid #53d769; color: #e0e0e0;
+    border-radius: 4px; font-family: inherit; outline: none;
+  ">
+  <input id="wallet-input" type="text" placeholder="Wallet address (0x...)" maxlength="42" style="
+    width: 280px; padding: 12px 16px; font-size: 13px; margin-top: 10px;
+    background: #16213e; border: 2px solid #53d769; color: #e0e0e0;
+    border-radius: 4px; font-family: inherit; outline: none;
+  ">
+  <div class="subtitle" style="font-size: 11px; margin-top: 8px; margin-bottom: 0; color: #666; max-width: 280px; text-align: center;">
+    Paste the wallet that owns your Timeless Character to verify ownership
+  </div>
+  <button id="login-btn">ENTER WORLD</button>
+  <div id="login-status" style="color: #7ec8e3; margin-top: 8px; font-size: 13px;"></div>
+  <div id="login-error"></div>
+</div>
+
+<!-- Character Preview -->
+<div id="creator-screen">
+  <div class="creator-inner">
+    <h2>YOUR CHARACTER</h2>
+    <div class="creator-sub" id="creator-sub-label">Timeless Character</div>
+    <div id="creator-content">
+      <div id="creator-preview">
+        <canvas id="preview-canvas" width="128" height="128"></canvas>
+        <div class="char-name" id="preview-name">-</div>
+        <div class="char-class" id="preview-class">-</div>
+        <button id="btn-enter-world">ENTER WORLD</button>
+      </div>
+      <div id="creator-traits" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Game -->
+<div id="game-container"></div>
+
+<!-- UI -->
+<div id="ui-bar" style="display:none;">
+  <div id="scene-label">MARKETPLACE</div>
+  <button class="ui-btn" id="btn-my-plot">My Plot</button>
+  <button class="ui-btn" id="btn-marketplace" style="display:none;">Back to Market</button>
+  <button class="ui-btn" id="btn-decorate" style="display:none;">Decorate</button>
+  <button class="ui-btn" id="btn-players">Players</button>
+</div>
+
+<!-- Chat -->
+<div id="chat-box" style="display:none;">
+  <div id="chat-messages"></div>
+  <div id="chat-input-row">
+    <input id="chat-input" type="text" placeholder="Chat or /visit username..." maxlength="200">
+    <button id="chat-send">&#9654;</button>
+  </div>
+</div>
+
+<!-- Decoration Panel -->
+<div id="decoration-panel">
+  <h3>🌳 Decorations</h3>
+</div>
+
+<!-- Players Panel -->
+<div id="players-panel">
+  <h4>Online Players</h4>
+  <div id="players-list"></div>
+</div>
+
+<script src="/game.js"></script>
+</body>
+</html>
