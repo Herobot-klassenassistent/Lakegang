@@ -26,13 +26,15 @@ async function verifyOwnership(tokenId, walletAddress) {
     return cached.result;
   }
   try {
-    const owner = await nftContract.ownerOf(tokenId);
+    // 10 second timeout to prevent hanging
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('RPC timeout')), 10000));
+    const owner = await Promise.race([nftContract.ownerOf(tokenId), timeoutPromise]);
     const isOwner = owner.toLowerCase() === walletAddress.toLowerCase();
     ownershipCache[cacheKey] = { result: isOwner, timestamp: Date.now() };
     return isOwner;
   } catch (err) {
     console.error(`Ownership check failed for token ${tokenId}:`, err.message);
-    return false;
+    throw err; // Let the caller handle it with a user-friendly message
   }
 }
 
@@ -120,6 +122,7 @@ io.on('connection', (socket) => {
 
   // Login / Register — with NFT ownership verification
   socket.on('login', async ({ username, charNumber, walletAddress }) => {
+    try {
     if (!username || username.length < 2 || username.length > 16) {
       socket.emit('loginError', 'Username must be 2-16 characters');
       return;
@@ -140,7 +143,14 @@ io.on('connection', (socket) => {
 
     // Verify NFT ownership on-chain
     socket.emit('loginStatus', 'Verifying NFT ownership on Ethereum...');
-    const owns = await verifyOwnership(charNumber, walletAddress);
+    let owns;
+    try {
+      owns = await verifyOwnership(charNumber, walletAddress);
+    } catch (rpcErr) {
+      console.error('RPC error:', rpcErr.message);
+      socket.emit('loginError', 'Could not verify ownership — Ethereum RPC error. Please try again.');
+      return;
+    }
     if (!owns) {
       socket.emit('loginError', `Wallet does not own Timeless Character #${charNumber}. Check your wallet address and character number.`);
       return;
@@ -180,6 +190,10 @@ io.on('connection', (socket) => {
       user: { id: user.id, username: user.username, avatarIndex: user.avatarIndex, charConfig: user.charConfig || null, charNumber: charNumber },
       plot: plot ? { id: plot.id, name: plot.name, items: plot.items } : null
     });
+    } catch (err) {
+      console.error('Login error:', err);
+      socket.emit('loginError', 'Server error during login. Please try again.');
+    }
   });
 
   // Save character config & enter world
