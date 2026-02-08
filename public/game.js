@@ -1,5 +1,5 @@
 // ============================================================
-// TREEVERSE PLOTS - HD Pixel Art Game Client
+// LAKEGANG - HD Pixel Art Game Client
 // ============================================================
 const socket = io();
 
@@ -2387,7 +2387,7 @@ socket.on('loginSuccess', ({ user, plot }) => {
     document.getElementById('creator-screen').style.display = 'none';
     gameState.game = new Phaser.Game(config);
     buildDecorationPanel();
-    addChatMessage('System', `Welcome to Treeverse, ${user.username}!`, true);
+    addChatMessage('System', `Welcome to Lakegang, ${user.username}!`, true);
     addChatMessage('System', 'WASD to move. Press E near doors. Click "My Plot" to enter.', true);
     addChatMessage('System', 'Commands: /visit <name>, /invite <name>', true);
   };
