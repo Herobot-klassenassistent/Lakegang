@@ -1796,7 +1796,7 @@ class MarketplaceScene extends Phaser.Scene {
 
       // === LAKE BOUNDARY ===
       // Lake rect and platform entry gap at top-left
-      const LAKE = { x1: 490, y1: 235, x2: 870, y2: 430 };
+      const LAKE = { x1: 490, y1: 235, x2: 830, y2: 430 };
       const ENTRY = { x1: 470, y1: 220, x2: 545, y2: 260 }; // platform dock
       const inLake = (px, py) => px > LAKE.x1 && px < LAKE.x2 && py > LAKE.y1 && py < LAKE.y2;
       const inEntry = (px, py) => px > ENTRY.x1 && px < ENTRY.x2 && py > ENTRY.y1 && py < ENTRY.y2;
