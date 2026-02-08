@@ -1860,11 +1860,13 @@ class MarketplaceScene extends Phaser.Scene {
     if (this.otherPlayers[id]) { this.otherPlayers[id].sprite.destroy(); this.otherPlayers[id].label.destroy(); delete this.otherPlayers[id]; }
   }
   updateOtherPlayers(playersList) {
+    if (!this.otherPlayers) return;
     const ids = new Set();
     for (const p of playersList) { if (gameState.user && p.id === gameState.user.id) continue; ids.add(p.id); this.addOtherPlayer(p); }
     for (const id of Object.keys(this.otherPlayers)) { if (!ids.has(id)) this.removeOtherPlayer(id); }
   }
   moveOtherPlayer(id, x, y) {
+    if (!this.otherPlayers) return;
     const op = this.otherPlayers[id];
     if (op) {
       const ddx = x - op.sprite._lastX;
@@ -2095,11 +2097,13 @@ class PlotScene extends Phaser.Scene {
   }
   removeOtherPlayer(id) { if (this.otherPlayers[id]) { this.otherPlayers[id].sprite.destroy(); this.otherPlayers[id].label.destroy(); delete this.otherPlayers[id]; } }
   updateOtherPlayers(playersList) {
+    if (!this.otherPlayers) return;
     const ids = new Set();
     for (const p of playersList) { if (gameState.user&&p.id===gameState.user.id) continue; ids.add(p.id); this.addOtherPlayer(p); }
     for (const id of Object.keys(this.otherPlayers)) { if (!ids.has(id)) this.removeOtherPlayer(id); }
   }
   moveOtherPlayer(id, x, y) {
+    if (!this.otherPlayers) return;
     const op = this.otherPlayers[id];
     if (op) {
       const ddx = x - op.sprite._lastX;
