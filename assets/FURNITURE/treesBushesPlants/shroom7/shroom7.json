@@ -1,0 +1,104 @@
+{
+	"textures": [
+		{
+			"image": "/assets/sprites/treesBushesPlants/shroom7.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 31,
+				"h": 45
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "stand_down_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 48
+					},
+					"spriteSourceSize": {
+						"x": 9,
+						"y": 2,
+						"w": 29,
+						"h": 43
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 29,
+						"h": 43
+					}
+				},
+				{
+					"filename": "stand_left_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 48
+					},
+					"spriteSourceSize": {
+						"x": 9,
+						"y": 2,
+						"w": 29,
+						"h": 43
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 29,
+						"h": 43
+					}
+				},
+				{
+					"filename": "stand_right_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 48
+					},
+					"spriteSourceSize": {
+						"x": 9,
+						"y": 2,
+						"w": 29,
+						"h": 43
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 29,
+						"h": 43
+					}
+				},
+				{
+					"filename": "stand_up_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 48
+					},
+					"spriteSourceSize": {
+						"x": 9,
+						"y": 2,
+						"w": 29,
+						"h": 43
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 29,
+						"h": 43
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:bf60ca9a205e94e05c9a8704f88f3d0d:b1b201c870d55c54bbe96b97c023b11c:e67bcc5ae25595f9bb2b4eeaebc3733c$"
+	}
+}

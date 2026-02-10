@@ -1,0 +1,104 @@
+{
+	"textures": [
+		{
+			"image": "/assets/sprites/treesBushesPlants/rocks15.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 74,
+				"h": 49
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "stand_down_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 96,
+						"h": 48
+					},
+					"spriteSourceSize": {
+						"x": 12,
+						"y": 0,
+						"w": 72,
+						"h": 47
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 72,
+						"h": 47
+					}
+				},
+				{
+					"filename": "stand_left_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 96,
+						"h": 48
+					},
+					"spriteSourceSize": {
+						"x": 12,
+						"y": 0,
+						"w": 72,
+						"h": 47
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 72,
+						"h": 47
+					}
+				},
+				{
+					"filename": "stand_right_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 96,
+						"h": 48
+					},
+					"spriteSourceSize": {
+						"x": 12,
+						"y": 0,
+						"w": 72,
+						"h": 47
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 72,
+						"h": 47
+					}
+				},
+				{
+					"filename": "stand_up_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 96,
+						"h": 48
+					},
+					"spriteSourceSize": {
+						"x": 12,
+						"y": 0,
+						"w": 72,
+						"h": 47
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 72,
+						"h": 47
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:824c6150342c192b7e71005eff89afd3:988cdb254e16db69ed27810f21724331:7e058a77dfdc478cde8712ef4012d40b$"
+	}
+}

@@ -1,0 +1,104 @@
+{
+	"textures": [
+		{
+			"image": "/assets/sprites/furniture/bed_4.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 297,
+				"h": 312
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "stand_left_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 192,
+						"h": 144
+					},
+					"spriteSourceSize": {
+						"x": 18,
+						"y": 2,
+						"w": 155,
+						"h": 142
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 155,
+						"h": 142
+					}
+				},
+				{
+					"filename": "stand_down_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 144,
+						"h": 192
+					},
+					"spriteSourceSize": {
+						"x": 3,
+						"y": 15,
+						"w": 136,
+						"h": 164
+					},
+					"frame": {
+						"x": 160,
+						"y": 1,
+						"w": 136,
+						"h": 164
+					}
+				},
+				{
+					"filename": "stand_up_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 144,
+						"h": 144
+					},
+					"spriteSourceSize": {
+						"x": 10,
+						"y": 0,
+						"w": 124,
+						"h": 144
+					},
+					"frame": {
+						"x": 1,
+						"y": 147,
+						"w": 124,
+						"h": 144
+					}
+				},
+				{
+					"filename": "stand_right_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 192,
+						"h": 144
+					},
+					"spriteSourceSize": {
+						"x": 18,
+						"y": 2,
+						"w": 155,
+						"h": 142
+					},
+					"frame": {
+						"x": 129,
+						"y": 169,
+						"w": 155,
+						"h": 142
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:c310c3bae410478154df67a53875594d:a8543dd0b158e1a8c5b035b89142f27e:9f49e2a90ce04403cfcf36d8a3702b8f$"
+	}
+}

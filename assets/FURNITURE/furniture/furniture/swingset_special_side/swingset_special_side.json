@@ -1,0 +1,104 @@
+{
+	"textures": [
+		{
+			"image": "/assets/sprites/furniture/swingset_special_side.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 153,
+				"h": 242
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "stand_down_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 256
+					},
+					"spriteSourceSize": {
+						"x": 4,
+						"y": 16,
+						"w": 151,
+						"h": 240
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 151,
+						"h": 240
+					}
+				},
+				{
+					"filename": "stand_left_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 256
+					},
+					"spriteSourceSize": {
+						"x": 4,
+						"y": 16,
+						"w": 151,
+						"h": 240
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 151,
+						"h": 240
+					}
+				},
+				{
+					"filename": "stand_right_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 256
+					},
+					"spriteSourceSize": {
+						"x": 4,
+						"y": 16,
+						"w": 151,
+						"h": 240
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 151,
+						"h": 240
+					}
+				},
+				{
+					"filename": "stand_up_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 160,
+						"h": 256
+					},
+					"spriteSourceSize": {
+						"x": 4,
+						"y": 16,
+						"w": 151,
+						"h": 240
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 151,
+						"h": 240
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:3c5f3f4387bad8bf41fe4b923c17d1d8:236e1348627da52f3c4b66345c54b793:ec436d728512402c2a2d0b248a971421$"
+	}
+}

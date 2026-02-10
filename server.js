@@ -73,6 +73,10 @@ function debouncedSave() {
 // ============================================================
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
+app.use('/assets/furniture', express.static(path.join(__dirname, 'assets', 'FURNITURE', 'furniture', 'furniture')));
+app.use('/assets/trees', express.static(path.join(__dirname, 'assets', 'FURNITURE', 'treesBushesPlants')));
+app.use('/assets/desert', express.static(path.join(__dirname, 'assets', 'FURNITURE', 'desert')));
+app.use('/assets/city', express.static(path.join(__dirname, 'assets', 'FURNITURE', 'city_village_decorations')));
 
 // ============================================================
 // Sprite proxy - serves remote spritesheets through our server to avoid CORS
@@ -284,6 +288,26 @@ io.on('connection', (socket) => {
     socket.emit('enteredMarketplace');
     io.to(oldScene).emit('playersUpdate', getPlayersInScene(oldScene));
     io.to('marketplace').emit('playersUpdate', getPlayersInScene('marketplace'));
+  });
+
+  // Scene transitions: Desert <-> Lake <-> City
+  socket.on('changeScene', ({ to, spawnX, spawnY }) => {
+    const player = players[socket.id];
+    if (!player) return;
+    const validScenes = ['desert', 'marketplace', 'city'];
+    if (!validScenes.includes(to)) return;
+
+    const oldScene = player.scene;
+    socket.leave(oldScene);
+
+    player.scene = to;
+    player.x = spawnX || 688;
+    player.y = spawnY || 400;
+    socket.join(to);
+
+    socket.emit('sceneChanged', { scene: to, x: player.x, y: player.y });
+    io.to(oldScene).emit('playersUpdate', getPlayersInScene(oldScene));
+    io.to(to).emit('playersUpdate', getPlayersInScene(to));
   });
 
   // Place item

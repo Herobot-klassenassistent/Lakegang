@@ -1,0 +1,104 @@
+{
+	"textures": [
+		{
+			"image": "/assets/sprites/treesBushesPlants/tree1b.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 231,
+				"h": 208
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "stand_down_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 240,
+						"h": 240
+					},
+					"spriteSourceSize": {
+						"x": 4,
+						"y": 16,
+						"w": 229,
+						"h": 206
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 229,
+						"h": 206
+					}
+				},
+				{
+					"filename": "stand_left_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 240,
+						"h": 240
+					},
+					"spriteSourceSize": {
+						"x": 4,
+						"y": 16,
+						"w": 229,
+						"h": 206
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 229,
+						"h": 206
+					}
+				},
+				{
+					"filename": "stand_right_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 240,
+						"h": 240
+					},
+					"spriteSourceSize": {
+						"x": 4,
+						"y": 16,
+						"w": 229,
+						"h": 206
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 229,
+						"h": 206
+					}
+				},
+				{
+					"filename": "stand_up_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 240,
+						"h": 240
+					},
+					"spriteSourceSize": {
+						"x": 4,
+						"y": 16,
+						"w": 229,
+						"h": 206
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 229,
+						"h": 206
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:f8a2aaa1320d99f359ea36ba849bc9f8:c835fddf3438988435a720bd69a2b8ac:92b9c3a95a75d58f2877e291c580c59d$"
+	}
+}

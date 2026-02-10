@@ -1,0 +1,104 @@
+{
+	"textures": [
+		{
+			"image": "/assets/sprites/furniture/cabinet_10.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 104,
+				"h": 171
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "stand_left_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 96
+					},
+					"spriteSourceSize": {
+						"x": 6,
+						"y": 0,
+						"w": 36,
+						"h": 95
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 36,
+						"h": 95
+					}
+				},
+				{
+					"filename": "stand_up_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 96,
+						"h": 96
+					},
+					"spriteSourceSize": {
+						"x": 17,
+						"y": 15,
+						"w": 62,
+						"h": 70
+					},
+					"frame": {
+						"x": 1,
+						"y": 100,
+						"w": 62,
+						"h": 70
+					}
+				},
+				{
+					"filename": "stand_down_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 96,
+						"h": 96
+					},
+					"spriteSourceSize": {
+						"x": 17,
+						"y": 15,
+						"w": 62,
+						"h": 67
+					},
+					"frame": {
+						"x": 41,
+						"y": 1,
+						"w": 62,
+						"h": 67
+					}
+				},
+				{
+					"filename": "stand_right_000",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 48,
+						"h": 96
+					},
+					"spriteSourceSize": {
+						"x": 6,
+						"y": 0,
+						"w": 36,
+						"h": 95
+					},
+					"frame": {
+						"x": 67,
+						"y": 72,
+						"w": 36,
+						"h": 95
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:1b947ea4581e52638860638f3661e00a:54d5e6e2103e06e12ae866011e7b8197:097c133525cdc11284a0bcdebe22e708$"
+	}
+}

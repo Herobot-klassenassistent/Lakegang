@@ -1,0 +1,104 @@
+{
+	"textures": [
+		{
+			"image": "/assets/sprites/furniture/carpet_8.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 394,
+				"h": 394
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "stand_down_000",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 130,
+						"h": 258
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 130,
+						"h": 258
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 130,
+						"h": 258
+					}
+				},
+				{
+					"filename": "stand_left_000",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 258,
+						"h": 130
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 258,
+						"h": 130
+					},
+					"frame": {
+						"x": 1,
+						"y": 263,
+						"w": 258,
+						"h": 130
+					}
+				},
+				{
+					"filename": "stand_right_000",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 258,
+						"h": 130
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 258,
+						"h": 130
+					},
+					"frame": {
+						"x": 135,
+						"y": 1,
+						"w": 258,
+						"h": 130
+					}
+				},
+				{
+					"filename": "stand_up_000",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 130,
+						"h": 258
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 130,
+						"h": 258
+					},
+					"frame": {
+						"x": 263,
+						"y": 135,
+						"w": 130,
+						"h": 258
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:6caeccad5c815126315456f1de7c2c95:8884bd42a0fe706f7cadd0224012ff15:460e201a0846c185e1e69c93b8caf439$"
+	}
+}

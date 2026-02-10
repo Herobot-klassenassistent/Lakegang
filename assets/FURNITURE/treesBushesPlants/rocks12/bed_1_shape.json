@@ -1,0 +1,79 @@
+{
+	"generator_info": "Shape definitions generated with PhysicsEditor. Visit https://www.codeandweb.com/physicseditor",
+	"stand_down_000": {
+		"type": "fromPhysicsEditor",
+		"label": "stand_down_000",
+		"isStatic": false,
+		"density": 0.1,
+		"restitution": 0,
+		"friction": 0.1,
+		"frictionAir": 0.01,
+		"frictionStatic": 0.5,
+		"collisionFilter": {
+			"group": 0,
+			"category": 1,
+			"mask": 255
+		},
+		"fixtures": [
+			{
+				"label": "",
+				"isSensor": false,
+				"vertices": [
+					[ { "x":2, "y":48 }, { "x":8, "y":47 }, { "x":14, "y":44 }, { "x":15, "y":42 }, { "x":5, "y":18 }, { "x":0, "y":23 }, { "x":0, "y":39 } ],
+					[ { "x":48, "y":18 }, { "x":5, "y":18 }, { "x":33, "y":39 }, { "x":45, "y":43 }, { "x":48, "y":40 } ],
+					[ { "x":36, "y":43 }, { "x":45, "y":43 }, { "x":33, "y":39 } ],
+					[ { "x":24, "y":42 }, { "x":29, "y":39 }, { "x":5, "y":18 }, { "x":15, "y":42 } ],
+					[ { "x":33, "y":39 }, { "x":5, "y":18 }, { "x":29, "y":39 } ]
+				]
+			}
+		]
+	},
+	"stand_left_000": {
+		"type": "fromPhysicsEditor",
+		"label": "stand_left_000",
+		"isStatic": false,
+		"density": 0.10000000149011612,
+		"restitution": 0,
+		"friction": 0.10000000149011612,
+		"frictionAir": 0.009999999776482582,
+		"frictionStatic": 0.5,
+		"collisionFilter": {
+			"group": 0,
+			"category": 1,
+			"mask": 255
+		},
+		"fixtures": []
+	},
+	"stand_right_000": {
+		"type": "fromPhysicsEditor",
+		"label": "stand_right_000",
+		"isStatic": false,
+		"density": 0.10000000149011612,
+		"restitution": 0,
+		"friction": 0.10000000149011612,
+		"frictionAir": 0.009999999776482582,
+		"frictionStatic": 0.5,
+		"collisionFilter": {
+			"group": 0,
+			"category": 1,
+			"mask": 255
+		},
+		"fixtures": []
+	},
+	"stand_up_000": {
+		"type": "fromPhysicsEditor",
+		"label": "stand_up_000",
+		"isStatic": false,
+		"density": 0.10000000149011612,
+		"restitution": 0,
+		"friction": 0.10000000149011612,
+		"frictionAir": 0.009999999776482582,
+		"frictionStatic": 0.5,
+		"collisionFilter": {
+			"group": 0,
+			"category": 1,
+			"mask": 255
+		},
+		"fixtures": []
+	}
+}

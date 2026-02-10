@@ -618,42 +618,105 @@ function selectTraitInUI(traitKey, value) {
 // ============================================================
 // DECORATION CATALOG (bigger, richer sprites)
 // ============================================================
+// Plot decoration assets (loaded from PNG files)
 const DECORATIONS = {
-  trees: [
-    { type: 'tree_oak', name: 'Oak Tree', color: '#2d5a27', w: 64, h: 80 },
-    { type: 'tree_pine', name: 'Pine Tree', color: '#1a4a1a', w: 48, h: 88 },
-    { type: 'tree_cherry', name: 'Cherry Blossom', color: '#d4608a', w: 64, h: 80 },
-    { type: 'tree_autumn', name: 'Autumn Tree', color: '#c45a2a', w: 64, h: 80 },
-    { type: 'tree_willow', name: 'Willow Tree', color: '#3a7a3a', w: 72, h: 88 },
-    { type: 'nftree', name: 'NFTree ✦', color: '#53d769', w: 64, h: 88 },
-  ],
-  buildings: [
-    { type: 'house_wood', name: 'Wood House', color: '#8B6914', w: 80, h: 88 },
-    { type: 'house_stone', name: 'Stone House', color: '#888', w: 80, h: 88 },
-    { type: 'shop', name: 'Market Stall', color: '#b35900', w: 72, h: 64 },
-    { type: 'guild_hall', name: 'Guild Hall', color: '#6a4c93', w: 96, h: 96 },
-  ],
   furniture: [
-    { type: 'bench', name: 'Bench', color: '#8B6914', w: 48, h: 28 },
-    { type: 'table_chairs', name: 'Table & Chairs', color: '#654321', w: 48, h: 48 },
-    { type: 'barrel', name: 'Barrel', color: '#8B4513', w: 28, h: 34 },
-    { type: 'fountain', name: 'Fountain', color: '#4a90d9', w: 64, h: 64 },
-    { type: 'lamp', name: 'Lamp Post', color: '#d4a843', w: 20, h: 56 },
-    { type: 'flower_bed', name: 'Flower Bed', color: '#d44c8a', w: 48, h: 32 },
-    { type: 'campfire', name: 'Campfire', color: '#e07830', w: 32, h: 32 },
-    { type: 'flag_banner', name: 'Banner', color: '#cc3333', w: 20, h: 56 },
+    { type: 'furn_sofa_blue', name: 'Blue Sofa', src: '/assets/furniture/sofa1_blue_down.png' },
+    { type: 'furn_sofa_red', name: 'Red Sofa', src: '/assets/furniture/sofa1_red_down.png' },
+    { type: 'furn_sofa_green', name: 'Green Sofa', src: '/assets/furniture/sofa1_green_down.png' },
+    { type: 'furn_bed1', name: 'Bed', src: '/assets/furniture/bed_1.png' },
+    { type: 'furn_bed2', name: 'Bed 2', src: '/assets/furniture/bed_2.png' },
+    { type: 'furn_table1', name: 'Table', src: '/assets/furniture/table_1.png' },
+    { type: 'furn_table2', name: 'Table 2', src: '/assets/furniture/table_2.png' },
+    { type: 'furn_table3', name: 'Round Table', src: '/assets/furniture/table_3.png' },
+    { type: 'furn_cabinet1', name: 'Cabinet', src: '/assets/furniture/cabinet_1.png' },
+    { type: 'furn_cabinet2', name: 'Cabinet 2', src: '/assets/furniture/cabinet_2.png' },
+    { type: 'furn_cabinet3', name: 'Cabinet 3', src: '/assets/furniture/cabinet_3.png' },
+    { type: 'furn_shelf', name: 'Shelf', src: '/assets/furniture/shelf_1.png' },
+    { type: 'furn_chair_blue', name: 'Blue Chair', src: '/assets/furniture/chairblue1_down.png' },
+    { type: 'furn_chair_red', name: 'Red Chair', src: '/assets/furniture/chairred1_down.png' },
+    { type: 'furn_chair_green', name: 'Green Chair', src: '/assets/furniture/chairgreen1_down.png' },
+    { type: 'furn_desk_blue', name: 'Blue Desk', src: '/assets/furniture/blue_smalldesk_1.png' },
+    { type: 'furn_desk_green', name: 'Green Desk', src: '/assets/furniture/green_smalldesk_1.png' },
+    { type: 'furn_lamp', name: 'Lamp', src: '/assets/furniture/lamp.png' },
+    { type: 'furn_carpet1', name: 'Carpet', src: '/assets/furniture/carpet_1.png' },
+    { type: 'furn_carpet2', name: 'Carpet 2', src: '/assets/furniture/carpet_3.png' },
+    { type: 'furn_carpet3', name: 'Carpet 3', src: '/assets/furniture/carpet_5.png' },
+    { type: 'furn_painting4', name: 'Painting', src: '/assets/furniture/painting_4.png' },
+    { type: 'furn_painting5', name: 'Painting 2', src: '/assets/furniture/painting_5.png' },
+    { type: 'furn_painting6', name: 'Painting 3', src: '/assets/furniture/painting_6.png' },
+    { type: 'furn_window1', name: 'Window', src: '/assets/furniture/window_1.png' },
+    { type: 'furn_window2', name: 'Window 2', src: '/assets/furniture/window_3.png' },
   ],
-  paths: [
-    { type: 'path_stone', name: 'Stone Path', color: '#999', w: 32, h: 32 },
-    { type: 'path_wood', name: 'Wood Path', color: '#8B6914', w: 32, h: 32 },
-    { type: 'bridge', name: 'Bridge', color: '#8B5A2B', w: 56, h: 32 },
-    { type: 'fence_h', name: 'Fence', color: '#8B6914', w: 48, h: 24 },
+  outdoor: [
+    { type: 'furn_bbq1', name: 'Barbecue', src: '/assets/furniture/barbecue1.png' },
+    { type: 'furn_bbq2', name: 'Barbecue 2', src: '/assets/furniture/barbecue2.png' },
+    { type: 'furn_gardentable', name: 'Garden Table', src: '/assets/furniture/gardentable_L.png' },
+    { type: 'furn_sunbed_beige', name: 'Sunbed', src: '/assets/furniture/sunbed_beige_down.png' },
+    { type: 'furn_sunbed_green', name: 'Green Sunbed', src: '/assets/furniture/sunbed_green_down.png' },
+    { type: 'furn_sunshade_cyan', name: 'Cyan Parasol', src: '/assets/furniture/sunshade_cyan.png' },
+    { type: 'furn_sunshade_green', name: 'Green Parasol', src: '/assets/furniture/sunshade_green.png' },
+    { type: 'furn_sunshade_orange', name: 'Orange Parasol', src: '/assets/furniture/sunshade_orange.png' },
+    { type: 'furn_swing_cyan', name: 'Cyan Swing', src: '/assets/furniture/swingset_cyan_down.png' },
+    { type: 'furn_swing_green', name: 'Green Swing', src: '/assets/furniture/swingset_green_down.png' },
+    { type: 'furn_tabouret1', name: 'Stool', src: '/assets/furniture/tabouret_1.png' },
+    { type: 'furn_tabouret_blue', name: 'Blue Stool', src: '/assets/furniture/tabouret_blue_down.png' },
   ],
-  water: [
-    { type: 'pond', name: 'Small Pond', color: '#4a90d9', w: 56, h: 48 },
-    { type: 'well', name: 'Well', color: '#777', w: 36, h: 44 },
+  plants: [
+    { type: 'furn_plant1', name: 'Flower Pot', src: '/assets/furniture/plant_flowers_1.png' },
+    { type: 'furn_plant2', name: 'Flower Pot 2', src: '/assets/furniture/plant_flowers_2.png' },
+    { type: 'furn_plant3', name: 'Flower Pot 3', src: '/assets/furniture/plant_flowers_4.png' },
+    { type: 'furn_plant4', name: 'Flower Pot 4', src: '/assets/furniture/plant_flowers_6.png' },
+    { type: 'furn_plant5', name: 'Flower Pot 5', src: '/assets/furniture/plant_flowers_8.png' },
+    { type: 'furn_gardenplant1', name: 'Garden Plant', src: '/assets/furniture/gardenplant_red_1.png' },
+    { type: 'furn_gardenplant2', name: 'Garden Plant 2', src: '/assets/furniture/gardenplant_orange_1.png' },
+    { type: 'furn_gardenplant3', name: 'Garden Plant 3', src: '/assets/furniture/gardenplant_cyan_2.png' },
+  ],
+  trees: [
+    { type: 'tree_t1', name: 'Oak', src: '/assets/trees/tree1.png' },
+    { type: 'tree_t1b', name: 'Oak 2', src: '/assets/trees/tree1b.png' },
+    { type: 'tree_t2', name: 'Tall Tree', src: '/assets/trees/tree2.png' },
+    { type: 'tree_t2b', name: 'Tall Tree 2', src: '/assets/trees/tree2b.png' },
+    { type: 'tree_t4', name: 'Maple', src: '/assets/trees/tree4.png' },
+    { type: 'tree_t5', name: 'Wide Tree', src: '/assets/trees/tree5.png' },
+    { type: 'tree_t6', name: 'Willow', src: '/assets/trees/tree6.png' },
+    { type: 'tree_bush1', name: 'Bush', src: '/assets/trees/bush.png' },
+    { type: 'tree_bush2', name: 'Bush 2', src: '/assets/trees/bush1.png' },
+    { type: 'tree_bush3', name: 'Bush 3', src: '/assets/trees/bush2.png' },
+    { type: 'tree_rocks1', name: 'Rocks', src: '/assets/trees/rocks.png' },
+    { type: 'tree_rocks2', name: 'Rocks 2', src: '/assets/trees/rocks1.png' },
+    { type: 'tree_rocks3', name: 'Big Rocks', src: '/assets/trees/rocks3.png' },
+    { type: 'tree_shroom1', name: 'Mushroom', src: '/assets/trees/shroom.png' },
+    { type: 'tree_shroom2', name: 'Mushroom 2', src: '/assets/trees/shroom2.png' },
+    { type: 'tree_shroom3', name: 'Mushroom 3', src: '/assets/trees/shroom4.png' },
   ],
 };
+
+// Desert environment assets (for scene decoration)
+const DESERT_ASSETS = [
+  'cacti_', 'cacti_1', 'cacti_3', 'cacti_4', 'cacti_5', 'cacti_6', 'cacti_7', 'cacti_8', 'cacti_9', 'cacti_10',
+  'desertfoliage_1', 'desertfoliage_2', 'desertfoliage_3', 'desertfoliage_4', 'desertfoliage_5',
+  'desertfoliage_6', 'desertfoliage_7', 'desertfoliage_8', 'desertfoliage_9', 'desertfoliage_10',
+  'desertfoliage_11', 'desertfoliage_12', 'desertfoliage_13', 'desertfoliage_14', 'desertfoliage_15',
+  'desertrocks_', 'desertrocks_1', 'desertrocks_3', 'desertrocks_4', 'desertrocks_5', 'desertrocks_6', 'desertrocks_7', 'desertrocks_8',
+];
+
+// City environment assets
+const CITY_ASSETS = [
+  'bench1hor', 'bench1vert', 'bench2hor', 'bench2vert', 'benchesXL',
+  'crane', 'crate', 'crate1', 'crate2', 'crate4', 'crate5',
+  'directions', 'dumpster', 'dumpster2',
+  'garbagebin', 'garbagebin2', 'garbagebin3',
+  'greenery_decor_1', 'greenery_decor_2', 'greenery_decor_3', 'greenery_decor_4', 'greenery_decor_5',
+  'greenery_decor_6', 'greenery_decor_7', 'greenery_decor_13', 'greenery_decor_18', 'greenery_decor_19',
+  'greenery_decor_20', 'greenery_decor_21', 'greenery_decor_22',
+  'lamppost', 'lamppost2',
+  'metalstructure', 'metalstructure1', 'metalstructure2', 'metalstructure3', 'metalstructure4', 'metalstructure5',
+  'post_flowers', 'post_flowers2', 'post_flowers3',
+  'smallpillar', 'smallpillardark',
+  'trafficsign_1', 'trafficsign_2', 'trafficsign_3', 'trafficsign_4', 'trafficsign_5',
+  'waterfountain',
+];
 
 // ============================================================
 // COLOR HELPERS
@@ -1417,13 +1480,24 @@ class BootScene extends Phaser.Scene {
   constructor() { super('Boot'); }
 
   preload() {
-    // Generate all decoration textures (still needed for PlotScene)
+    // Load all decoration PNG assets (furniture + trees for plot builder)
     for (const [cat, items] of Object.entries(DECORATIONS)) {
       for (const item of items) {
-        const canvas = generatePixelArt(item.type, item.w, item.h);
-        this.textures.addCanvas(item.type, canvas);
+        this.load.image(item.type, item.src);
       }
     }
+
+    // Load desert environment assets
+    for (const name of DESERT_ASSETS) {
+      this.load.image('desert_' + name, '/assets/desert/' + name + '.png');
+    }
+
+    // Load city environment assets
+    for (const name of CITY_ASSETS) {
+      this.load.image('city_' + name, '/assets/city/' + name + '.png');
+    }
+
+    // Generate procedural tiles (still needed for PlotScene ground)
     this.generateMapTiles();
 
     // Load marketplace background
@@ -1733,6 +1807,17 @@ class MarketplaceScene extends Phaser.Scene {
     // === BACKGROUND IMAGE ===
     this.add.image(W / 2, H / 2, 'marketplace_bg').setDepth(0);
 
+    // === SCENE TRANSITION LABELS ===
+    this.leftLabel = this.add.text(30, H / 2, '< DESERT', {
+      fontSize: '12px', fontFamily: 'Courier New', color: '#f0c060',
+      stroke: '#000', strokeThickness: 3
+    }).setOrigin(0, 0.5).setDepth(10000).setAlpha(0);
+
+    this.rightLabel = this.add.text(W - 30, H / 2, 'CITY >', {
+      fontSize: '12px', fontFamily: 'Courier New', color: '#7ec8e3',
+      stroke: '#000', strokeThickness: 3
+    }).setOrigin(1, 0.5).setDepth(10000).setAlpha(0);
+
     // === HOUSE PORTAL TO PLOTS ===
     // Invisible zone positioned over the little house on the background
     this.doorZone = this.add.zone(1030, 340, 100, 100);
@@ -1853,6 +1938,28 @@ class MarketplaceScene extends Phaser.Scene {
         this.doorLabel.setAlpha(dist < 150 ? 0.6 : 0);
       }
     }
+
+    // Scene transition edges
+    if (this.player.x <= 30) {
+      this.leftLabel.setAlpha(1);
+      // Auto-transition when reaching the very edge
+      if (this.player.x <= 22 && !this._transitioning) {
+        this._transitioning = true;
+        socket.emit('changeScene', { to: 'desert', spawnX: 1340, spawnY: this.player.y });
+      }
+    } else {
+      this.leftLabel.setAlpha(this.player.x < 100 ? 0.5 : 0);
+    }
+
+    if (this.player.x >= 1346) {
+      this.rightLabel.setAlpha(1);
+      if (this.player.x >= 1354 && !this._transitioning) {
+        this._transitioning = true;
+        socket.emit('changeScene', { to: 'city', spawnX: 30, spawnY: this.player.y });
+      }
+    } else {
+      this.rightLabel.setAlpha(this.player.x > 1276 ? 0.5 : 0);
+    }
   }
 
   addOtherPlayer(data) {
@@ -1969,6 +2076,427 @@ class MarketplaceScene extends Phaser.Scene {
       tail.setPosition(targetSprite.x, targetSprite.y - 55 + 2);
     };
     this.time.addEvent({ delay: 16, callback: updateBubble, repeat: 218 }); // ~3.5s
+  }
+}
+
+// ============================================================
+// DESERT SCENE - LEFT OF LAKE
+// ============================================================
+class DesertScene extends Phaser.Scene {
+  constructor() { super('Desert'); }
+
+  create() {
+    const W = 1376, H = 752;
+    this.cameras.main.setBounds(0, 0, W, H);
+
+    // Sandy ground
+    const gfx = this.add.graphics();
+    gfx.fillStyle(0xd4a860, 1); gfx.fillRect(0, 0, W, H);
+    // Gradient sand variation
+    const rng = seededRandom(333);
+    for (let i = 0; i < 200; i++) {
+      const sx = rng() * W, sy = rng() * H;
+      const v = rng() * 0.15;
+      gfx.fillStyle(rng() > 0.5 ? 0xc89850 : 0xdab870, v);
+      gfx.fillRect(sx, sy, 20 + rng() * 60, 10 + rng() * 30);
+    }
+    // Sandy path across bottom
+    gfx.fillStyle(0xc09040, 0.5);
+    gfx.fillRect(0, 520, W, 80);
+    gfx.setDepth(0);
+
+    // Place desert environment decorations
+    const placements = [
+      // Big rocks clusters
+      { asset: 'desertrocks_5', x: 200, y: 180 }, { asset: 'desertrocks_3', x: 350, y: 120 },
+      { asset: 'desertrocks_8', x: 900, y: 200 }, { asset: 'desertrocks_6', x: 1100, y: 150 },
+      { asset: 'desertrocks_4', x: 600, y: 100 }, { asset: 'desertrocks_7', x: 750, y: 650 },
+      { asset: 'desertrocks_1', x: 1200, y: 350 }, { asset: 'desertrocks_', x: 100, y: 400 },
+      // Cacti scattered
+      { asset: 'cacti_', x: 150, y: 300 }, { asset: 'cacti_1', x: 400, y: 250 },
+      { asset: 'cacti_3', x: 550, y: 350 }, { asset: 'cacti_4', x: 700, y: 200 },
+      { asset: 'cacti_5', x: 850, y: 400 }, { asset: 'cacti_6', x: 1000, y: 300 },
+      { asset: 'cacti_7', x: 300, y: 500 }, { asset: 'cacti_8', x: 1150, y: 500 },
+      { asset: 'cacti_9', x: 500, y: 600 }, { asset: 'cacti_10', x: 800, y: 550 },
+      { asset: 'cacti_4', x: 1250, y: 250 }, { asset: 'cacti_1', x: 650, y: 450 },
+      // Desert foliage
+      { asset: 'desertfoliage_1', x: 120, y: 550 }, { asset: 'desertfoliage_2', x: 250, y: 650 },
+      { asset: 'desertfoliage_3', x: 450, y: 450 }, { asset: 'desertfoliage_4', x: 680, y: 350 },
+      { asset: 'desertfoliage_5', x: 930, y: 550 }, { asset: 'desertfoliage_6', x: 1100, y: 600 },
+      { asset: 'desertfoliage_7', x: 350, y: 380 }, { asset: 'desertfoliage_8', x: 780, y: 480 },
+      { asset: 'desertfoliage_9', x: 1050, y: 420 }, { asset: 'desertfoliage_10', x: 200, y: 480 },
+      { asset: 'desertfoliage_11', x: 520, y: 200 }, { asset: 'desertfoliage_12', x: 870, y: 300 },
+      { asset: 'desertfoliage_13', x: 1200, y: 480 }, { asset: 'desertfoliage_14', x: 670, y: 620 },
+      { asset: 'desertfoliage_15', x: 400, y: 580 },
+      // More rocks for depth
+      { asset: 'desertrocks_5', x: 500, y: 500 }, { asset: 'desertrocks_3', x: 1050, y: 250 },
+    ];
+
+    for (const p of placements) {
+      const key = 'desert_' + p.asset;
+      if (this.textures.exists(key)) {
+        this.add.image(p.x, p.y, key).setDepth(p.y);
+      }
+    }
+
+    // Navigation labels
+    this.rightLabel = this.add.text(W - 30, H / 2, 'LAKE >', {
+      fontSize: '12px', fontFamily: 'Courier New', color: '#53d769',
+      stroke: '#000', strokeThickness: 3
+    }).setOrigin(1, 0.5).setDepth(10000).setAlpha(0);
+
+    // Player
+    const charNum = gameState.charNumber || 1;
+    const texKey = BootScene.loadCharacterSprite(this, charNum, 'char_' + charNum);
+    this.playerTexKey = texKey;
+    const startX = gameState._spawnX || 688;
+    const startY = gameState._spawnY || 400;
+    gameState._spawnX = null; gameState._spawnY = null;
+
+    if (this.textures.exists(texKey)) {
+      this.player = this.add.sprite(startX, startY, texKey).setScale(1.33).setDepth(10000);
+      this.player.play(texKey + '_idle_down');
+    } else {
+      this.player = this.add.sprite(startX, startY, '__DEFAULT').setScale(1.33).setDepth(10000);
+      this.player._pendingTexKey = texKey;
+    }
+    this.playerDir = 'down';
+    this.playerLabel = this.add.text(startX, startY - 38, gameState.user?.username || '', {
+      fontSize: '11px', fontFamily: 'Courier New', color: '#fff',
+      stroke: '#000', strokeThickness: 3
+    }).setOrigin(0.5).setDepth(10001);
+
+    this.otherPlayers = {};
+    this.cursors = this.input.keyboard.createCursorKeys();
+    this.wasd = this.input.keyboard.addKeys('W,A,S,D');
+    this.moveSpeed = 3;
+    this.moveTimer = 0;
+    this.wasMoving = false;
+
+    this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+    gameState.isInPlot = false;
+    gameState.currentScene = 'desert';
+    updateUI();
+    socket.emit('requestPlayersUpdate');
+  }
+
+  update(time) {
+    if (!this.player) return;
+    let dx = 0, dy = 0;
+    if (this.cursors.left.isDown || this.wasd.A.isDown) dx = -this.moveSpeed;
+    if (this.cursors.right.isDown || this.wasd.D.isDown) dx = this.moveSpeed;
+    if (this.cursors.up.isDown || this.wasd.W.isDown) dy = -this.moveSpeed;
+    if (this.cursors.down.isDown || this.wasd.S.isDown) dy = this.moveSpeed;
+    if (dx && dy) { dx *= 0.707; dy *= 0.707; }
+
+    const isMoving = dx !== 0 || dy !== 0;
+    if (isMoving) {
+      this.player.x = Phaser.Math.Clamp(this.player.x + dx, 20, 1356);
+      this.player.y = Phaser.Math.Clamp(this.player.y + dy, 20, 732);
+      this.player.setDepth(this.player.y + 10000);
+      this.playerLabel.setPosition(this.player.x, this.player.y - 38);
+      if (time - this.moveTimer > 50) {
+        this.moveTimer = time;
+        socket.emit('move', { x: this.player.x, y: this.player.y });
+      }
+      let newDir = this.playerDir;
+      if (Math.abs(dx) >= Math.abs(dy)) newDir = dx < 0 ? 'left' : 'right';
+      else newDir = dy < 0 ? 'up' : 'down';
+      if ((!this.wasMoving || newDir !== this.playerDir) && this.textures.exists(this.playerTexKey)) {
+        this.player.setFlipX(false);
+        this.player.play(this.playerTexKey + '_walk_' + newDir);
+        this.playerDir = newDir;
+      }
+    } else if (this.wasMoving && this.textures.exists(this.playerTexKey)) {
+      this.player.setFlipX(false);
+      this.player.play(this.playerTexKey + '_idle_' + this.playerDir);
+    }
+    this.wasMoving = isMoving;
+
+    // Right edge -> Lake
+    if (this.player.x >= 1346) {
+      this.rightLabel.setAlpha(1);
+      if (this.player.x >= 1354 && !this._transitioning) {
+        this._transitioning = true;
+        socket.emit('changeScene', { to: 'marketplace', spawnX: 30, spawnY: this.player.y });
+      }
+    } else {
+      this.rightLabel.setAlpha(this.player.x > 1276 ? 0.5 : 0);
+    }
+  }
+
+  addOtherPlayer(data) {
+    if (this.otherPlayers[data.id]) { this.otherPlayers[data.id].sprite.setPosition(data.x,data.y); this.otherPlayers[data.id].label.setPosition(data.x,data.y-38); return; }
+    const otherCharNum = data.charNumber || 1;
+    const texKey = 'char_' + otherCharNum;
+    BootScene.loadCharacterSprite(this, otherCharNum, texKey);
+    let sprite;
+    if (this.textures.exists(texKey)) {
+      sprite = this.add.sprite(data.x,data.y,texKey).setScale(1.33).setDepth(data.y);
+      sprite.play(texKey + '_idle_down');
+    } else {
+      sprite = this.add.sprite(data.x,data.y,'__DEFAULT').setScale(1.33).setDepth(data.y);
+      sprite._pendingTexKey = texKey;
+    }
+    sprite._texKey = texKey;
+    const label = this.add.text(data.x,data.y-38,data.username,{fontSize:'11px',fontFamily:'Courier New',color:'#fff',stroke:'#000',strokeThickness:3}).setOrigin(0.5).setDepth(data.y+1);
+    this.otherPlayers[data.id] = { sprite, label };
+  }
+  removeOtherPlayer(id) { if (this.otherPlayers[id]) { this.otherPlayers[id].sprite.destroy(); this.otherPlayers[id].label.destroy(); delete this.otherPlayers[id]; } }
+  updateOtherPlayers(playersList) {
+    if (!this.otherPlayers) return;
+    const ids = new Set();
+    for (const p of playersList) { if (gameState.user&&p.id===gameState.user.id) continue; ids.add(p.id); this.addOtherPlayer(p); }
+    for (const id of Object.keys(this.otherPlayers)) { if (!ids.has(id)) this.removeOtherPlayer(id); }
+  }
+  moveOtherPlayer(id, x, y) {
+    if (!this.otherPlayers) return;
+    const op = this.otherPlayers[id];
+    if (op) {
+      const dir = x < op.sprite.x ? 'left' : x > op.sprite.x ? 'right' : y < op.sprite.y ? 'up' : 'down';
+      if (op.sprite._texKey && this.textures.exists(op.sprite._texKey)) op.sprite.play(op.sprite._texKey + '_walk_' + dir, true);
+      op.sprite.setPosition(x, y).setDepth(y);
+      op.label.setPosition(x, y - 38).setDepth(y + 1);
+    }
+  }
+  showChatBubble(username, text) {
+    let targetSprite = null;
+    if (gameState.user && username === gameState.user.username) targetSprite = this.player;
+    else if (this.otherPlayers) {
+      for (const op of Object.values(this.otherPlayers)) { if (op.label && op.label.text === username) { targetSprite = op.sprite; break; } }
+    }
+    if (!targetSprite) return;
+    const msg = text.length > 40 ? text.slice(0, 37) + '...' : text;
+    const bubbleText = this.add.text(targetSprite.x, targetSprite.y - 55, msg, {
+      fontSize: '10px', fontFamily: 'Courier New', color: '#1a1a2e',
+      backgroundColor: '#f0f0f0', padding: { x: 6, y: 4 }, wordWrap: { width: 160 }, align: 'center'
+    }).setOrigin(0.5, 1).setDepth(20000);
+    const tail = this.add.triangle(targetSprite.x, targetSprite.y - 53, 0, 0, 10, 0, 5, 6, 0xf0f0f0).setDepth(20000);
+    this.tweens.add({ targets: [bubbleText, tail], alpha: 0, y: '-=10', delay: 3000, duration: 500, onComplete: () => { bubbleText.destroy(); tail.destroy(); } });
+    const updateBubble = () => { if (!targetSprite.active || !bubbleText.active) return; bubbleText.setPosition(targetSprite.x, targetSprite.y - 55); tail.setPosition(targetSprite.x, targetSprite.y - 53); };
+    this.time.addEvent({ delay: 16, callback: updateBubble, repeat: 218 });
+  }
+}
+
+// ============================================================
+// CITY SCENE - RIGHT OF LAKE
+// ============================================================
+class CityScene extends Phaser.Scene {
+  constructor() { super('City'); }
+
+  create() {
+    const W = 1376, H = 752;
+    this.cameras.main.setBounds(0, 0, W, H);
+
+    // City ground - stone/concrete
+    const gfx = this.add.graphics();
+    gfx.fillStyle(0x555566, 1); gfx.fillRect(0, 0, W, H);
+    const rng = seededRandom(777);
+    // Pavement variation
+    for (let y = 0; y < H; y += 48) {
+      for (let x = 0; x < W; x += 48) {
+        const v = (rng() * 20 - 10) | 0;
+        gfx.fillStyle(Phaser.Display.Color.GetColor(85 + v, 85 + v, 102 + v), 1);
+        gfx.fillRect(x, y, 47, 47);
+      }
+    }
+    // Road
+    gfx.fillStyle(0x3a3a4a, 1); gfx.fillRect(0, 500, W, 100);
+    gfx.fillStyle(0xcccc44, 1);
+    for (let x = 0; x < W; x += 80) { gfx.fillRect(x, 548, 40, 4); } // dashed line
+    // Sidewalk
+    gfx.fillStyle(0x888899, 1); gfx.fillRect(0, 490, W, 12); gfx.fillRect(0, 598, W, 12);
+    gfx.setDepth(0);
+
+    // Place city decorations
+    const placements = [
+      // Metal structures / buildings backdrop
+      { asset: 'metalstructure', x: 100, y: 120 }, { asset: 'metalstructure1', x: 300, y: 100 },
+      { asset: 'metalstructure2', x: 500, y: 130 }, { asset: 'metalstructure3', x: 700, y: 90 },
+      { asset: 'metalstructure4', x: 900, y: 110 }, { asset: 'metalstructure5', x: 1100, y: 100 },
+      { asset: 'metalstructure', x: 1250, y: 120 },
+      // Crane
+      { asset: 'crane', x: 1300, y: 200 },
+      // Benches along sidewalk
+      { asset: 'bench1hor', x: 200, y: 475 }, { asset: 'bench2hor', x: 600, y: 475 },
+      { asset: 'bench1hor', x: 1000, y: 475 }, { asset: 'bench2hor', x: 400, y: 625 },
+      { asset: 'bench1hor', x: 800, y: 625 },
+      // Lampposts
+      { asset: 'lamppost', x: 150, y: 460 }, { asset: 'lamppost2', x: 450, y: 460 },
+      { asset: 'lamppost', x: 750, y: 460 }, { asset: 'lamppost2', x: 1050, y: 460 },
+      { asset: 'lamppost', x: 250, y: 640 }, { asset: 'lamppost2', x: 650, y: 640 },
+      { asset: 'lamppost', x: 1150, y: 640 },
+      // Greenery
+      { asset: 'greenery_decor_1', x: 180, y: 300 }, { asset: 'greenery_decor_2', x: 400, y: 350 },
+      { asset: 'greenery_decor_3', x: 650, y: 280 }, { asset: 'greenery_decor_4', x: 880, y: 320 },
+      { asset: 'greenery_decor_5', x: 1100, y: 300 }, { asset: 'greenery_decor_6', x: 300, y: 250 },
+      { asset: 'greenery_decor_7', x: 550, y: 380 }, { asset: 'greenery_decor_13', x: 780, y: 400 },
+      { asset: 'greenery_decor_18', x: 1000, y: 380 }, { asset: 'greenery_decor_19', x: 200, y: 420 },
+      { asset: 'greenery_decor_20', x: 500, y: 200 }, { asset: 'greenery_decor_21', x: 750, y: 180 },
+      { asset: 'greenery_decor_22', x: 1050, y: 220 },
+      // Post flowers
+      { asset: 'post_flowers', x: 350, y: 440 }, { asset: 'post_flowers2', x: 700, y: 440 },
+      { asset: 'post_flowers3', x: 1100, y: 440 },
+      // Crates and dumpsters
+      { asset: 'crate', x: 130, y: 650 }, { asset: 'crate1', x: 160, y: 660 },
+      { asset: 'crate2', x: 950, y: 650 }, { asset: 'dumpster', x: 1200, y: 660 },
+      { asset: 'garbagebin', x: 350, y: 655 }, { asset: 'garbagebin2', x: 550, y: 470 },
+      // Traffic signs
+      { asset: 'trafficsign_1', x: 250, y: 480 }, { asset: 'trafficsign_3', x: 850, y: 480 },
+      { asset: 'trafficsign_5', x: 1200, y: 480 },
+      // Water fountain centerpiece
+      { asset: 'waterfountain', x: 688, y: 350 },
+      // Directions sign
+      { asset: 'directions', x: 50, y: 400 },
+      // Pillars
+      { asset: 'smallpillar', x: 600, y: 250 }, { asset: 'smallpillardark', x: 800, y: 250 },
+      // Benches XL
+      { asset: 'benchesXL', x: 688, y: 430 },
+    ];
+
+    for (const p of placements) {
+      const key = 'city_' + p.asset;
+      if (this.textures.exists(key)) {
+        this.add.image(p.x, p.y, key).setDepth(p.y);
+      }
+    }
+
+    // Navigation label
+    this.leftLabel = this.add.text(30, H / 2, '< LAKE', {
+      fontSize: '12px', fontFamily: 'Courier New', color: '#53d769',
+      stroke: '#000', strokeThickness: 3
+    }).setOrigin(0, 0.5).setDepth(10000).setAlpha(0);
+
+    // Player
+    const charNum = gameState.charNumber || 1;
+    const texKey = BootScene.loadCharacterSprite(this, charNum, 'char_' + charNum);
+    this.playerTexKey = texKey;
+    const startX = gameState._spawnX || 688;
+    const startY = gameState._spawnY || 400;
+    gameState._spawnX = null; gameState._spawnY = null;
+
+    if (this.textures.exists(texKey)) {
+      this.player = this.add.sprite(startX, startY, texKey).setScale(1.33).setDepth(10000);
+      this.player.play(texKey + '_idle_down');
+    } else {
+      this.player = this.add.sprite(startX, startY, '__DEFAULT').setScale(1.33).setDepth(10000);
+      this.player._pendingTexKey = texKey;
+    }
+    this.playerDir = 'down';
+    this.playerLabel = this.add.text(startX, startY - 38, gameState.user?.username || '', {
+      fontSize: '11px', fontFamily: 'Courier New', color: '#fff',
+      stroke: '#000', strokeThickness: 3
+    }).setOrigin(0.5).setDepth(10001);
+
+    this.otherPlayers = {};
+    this.cursors = this.input.keyboard.createCursorKeys();
+    this.wasd = this.input.keyboard.addKeys('W,A,S,D');
+    this.moveSpeed = 3;
+    this.moveTimer = 0;
+    this.wasMoving = false;
+
+    this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+    gameState.isInPlot = false;
+    gameState.currentScene = 'city';
+    updateUI();
+    socket.emit('requestPlayersUpdate');
+  }
+
+  update(time) {
+    if (!this.player) return;
+    let dx = 0, dy = 0;
+    if (this.cursors.left.isDown || this.wasd.A.isDown) dx = -this.moveSpeed;
+    if (this.cursors.right.isDown || this.wasd.D.isDown) dx = this.moveSpeed;
+    if (this.cursors.up.isDown || this.wasd.W.isDown) dy = -this.moveSpeed;
+    if (this.cursors.down.isDown || this.wasd.S.isDown) dy = this.moveSpeed;
+    if (dx && dy) { dx *= 0.707; dy *= 0.707; }
+
+    const isMoving = dx !== 0 || dy !== 0;
+    if (isMoving) {
+      this.player.x = Phaser.Math.Clamp(this.player.x + dx, 20, 1356);
+      this.player.y = Phaser.Math.Clamp(this.player.y + dy, 20, 732);
+      this.player.setDepth(this.player.y + 10000);
+      this.playerLabel.setPosition(this.player.x, this.player.y - 38);
+      if (time - this.moveTimer > 50) {
+        this.moveTimer = time;
+        socket.emit('move', { x: this.player.x, y: this.player.y });
+      }
+      let newDir = this.playerDir;
+      if (Math.abs(dx) >= Math.abs(dy)) newDir = dx < 0 ? 'left' : 'right';
+      else newDir = dy < 0 ? 'up' : 'down';
+      if ((!this.wasMoving || newDir !== this.playerDir) && this.textures.exists(this.playerTexKey)) {
+        this.player.setFlipX(false);
+        this.player.play(this.playerTexKey + '_walk_' + newDir);
+        this.playerDir = newDir;
+      }
+    } else if (this.wasMoving && this.textures.exists(this.playerTexKey)) {
+      this.player.setFlipX(false);
+      this.player.play(this.playerTexKey + '_idle_' + this.playerDir);
+    }
+    this.wasMoving = isMoving;
+
+    // Left edge -> Lake
+    if (this.player.x <= 30) {
+      this.leftLabel.setAlpha(1);
+      if (this.player.x <= 22 && !this._transitioning) {
+        this._transitioning = true;
+        socket.emit('changeScene', { to: 'marketplace', spawnX: 1340, spawnY: this.player.y });
+      }
+    } else {
+      this.leftLabel.setAlpha(this.player.x < 100 ? 0.5 : 0);
+    }
+  }
+
+  addOtherPlayer(data) {
+    if (this.otherPlayers[data.id]) { this.otherPlayers[data.id].sprite.setPosition(data.x,data.y); this.otherPlayers[data.id].label.setPosition(data.x,data.y-38); return; }
+    const otherCharNum = data.charNumber || 1;
+    const texKey = 'char_' + otherCharNum;
+    BootScene.loadCharacterSprite(this, otherCharNum, texKey);
+    let sprite;
+    if (this.textures.exists(texKey)) {
+      sprite = this.add.sprite(data.x,data.y,texKey).setScale(1.33).setDepth(data.y);
+      sprite.play(texKey + '_idle_down');
+    } else {
+      sprite = this.add.sprite(data.x,data.y,'__DEFAULT').setScale(1.33).setDepth(data.y);
+      sprite._pendingTexKey = texKey;
+    }
+    sprite._texKey = texKey;
+    const label = this.add.text(data.x,data.y-38,data.username,{fontSize:'11px',fontFamily:'Courier New',color:'#fff',stroke:'#000',strokeThickness:3}).setOrigin(0.5).setDepth(data.y+1);
+    this.otherPlayers[data.id] = { sprite, label };
+  }
+  removeOtherPlayer(id) { if (this.otherPlayers[id]) { this.otherPlayers[id].sprite.destroy(); this.otherPlayers[id].label.destroy(); delete this.otherPlayers[id]; } }
+  updateOtherPlayers(playersList) {
+    if (!this.otherPlayers) return;
+    const ids = new Set();
+    for (const p of playersList) { if (gameState.user&&p.id===gameState.user.id) continue; ids.add(p.id); this.addOtherPlayer(p); }
+    for (const id of Object.keys(this.otherPlayers)) { if (!ids.has(id)) this.removeOtherPlayer(id); }
+  }
+  moveOtherPlayer(id, x, y) {
+    if (!this.otherPlayers) return;
+    const op = this.otherPlayers[id];
+    if (op) {
+      const dir = x < op.sprite.x ? 'left' : x > op.sprite.x ? 'right' : y < op.sprite.y ? 'up' : 'down';
+      if (op.sprite._texKey && this.textures.exists(op.sprite._texKey)) op.sprite.play(op.sprite._texKey + '_walk_' + dir, true);
+      op.sprite.setPosition(x, y).setDepth(y);
+      op.label.setPosition(x, y - 38).setDepth(y + 1);
+    }
+  }
+  showChatBubble(username, text) {
+    let targetSprite = null;
+    if (gameState.user && username === gameState.user.username) targetSprite = this.player;
+    else if (this.otherPlayers) {
+      for (const op of Object.values(this.otherPlayers)) { if (op.label && op.label.text === username) { targetSprite = op.sprite; break; } }
+    }
+    if (!targetSprite) return;
+    const msg = text.length > 40 ? text.slice(0, 37) + '...' : text;
+    const bubbleText = this.add.text(targetSprite.x, targetSprite.y - 55, msg, {
+      fontSize: '10px', fontFamily: 'Courier New', color: '#1a1a2e',
+      backgroundColor: '#f0f0f0', padding: { x: 6, y: 4 }, wordWrap: { width: 160 }, align: 'center'
+    }).setOrigin(0.5, 1).setDepth(20000);
+    const tail = this.add.triangle(targetSprite.x, targetSprite.y - 53, 0, 0, 10, 0, 5, 6, 0xf0f0f0).setDepth(20000);
+    this.tweens.add({ targets: [bubbleText, tail], alpha: 0, y: '-=10', delay: 3000, duration: 500, onComplete: () => { bubbleText.destroy(); tail.destroy(); } });
+    const updateBubble = () => { if (!targetSprite.active || !bubbleText.active) return; bubbleText.setPosition(targetSprite.x, targetSprite.y - 55); tail.setPosition(targetSprite.x, targetSprite.y - 53); };
+    this.time.addEvent({ delay: 16, callback: updateBubble, repeat: 218 });
   }
 }
 
@@ -2260,7 +2788,7 @@ const config = {
   pixelArt: true,
   backgroundColor: '#1a2a1a',
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-  scene: [BootScene, MarketplaceScene, PlotScene],
+  scene: [BootScene, MarketplaceScene, DesertScene, CityScene, PlotScene],
   input: { keyboard: true, mouse: true }
 };
 
@@ -2287,7 +2815,7 @@ function updateUI() {
 
 function buildDecorationPanel() {
   const panel = document.getElementById('decoration-panel');
-  panel.innerHTML = '<h3>🌳 Decorations</h3>';
+  panel.innerHTML = '<h3>Decorations</h3>';
   for (const [category, items] of Object.entries(DECORATIONS)) {
     const catDiv = document.createElement('div');
     catDiv.className = 'deco-category';
@@ -2296,8 +2824,10 @@ function buildDecorationPanel() {
     for (const item of items) {
       const div = document.createElement('div');
       div.className = 'deco-item';
-      const preview = generatePixelArt(item.type, item.w, item.h);
+      const preview = document.createElement('img');
+      preview.src = item.src;
       preview.style.width = '32px'; preview.style.height = '32px'; preview.style.objectFit = 'contain';
+      preview.style.imageRendering = 'pixelated';
       div.appendChild(preview);
       const label = document.createElement('span');
       label.textContent = item.name;
@@ -2324,7 +2854,8 @@ function updatePlayersList(players) {
   const list = document.getElementById('players-list'); list.innerHTML = '';
   for (const p of players) {
     const div = document.createElement('div'); div.className = 'player-entry';
-    div.innerHTML = `<span class="dot"></span>${escapeHtml(p.username)} <small style="color:#666">(${p.scene==='marketplace'?'Market':'Plot'})</small>`;
+    const sceneLabel = p.scene==='marketplace'?'Lake':p.scene==='desert'?'Desert':p.scene==='city'?'City':p.scene?.startsWith('plot_')?'Plot':'?';
+    div.innerHTML = `<span class="dot"></span>${escapeHtml(p.username)} <small style="color:#666">(${sceneLabel})</small>`;
     div.style.cursor = 'pointer';
     div.addEventListener('click', () => { if (p.id !== gameState.user.id) socket.emit('chat', { text: `/visit ${p.username}` }); });
     list.appendChild(div);
@@ -2423,15 +2954,40 @@ socket.on('loginError', (msg) => {
   document.getElementById('login-btn').disabled = false;
   document.getElementById('login-btn').textContent = 'ENTER WORLD';
 });
-socket.on('playersUpdate', (pl) => { const s = gameState.game?.scene?.getScene(gameState.isInPlot?'Plot':'Marketplace'); if (s?.updateOtherPlayers) s.updateOtherPlayers(pl); });
-socket.on('playerMoved', ({id,x,y}) => { const s = gameState.game?.scene?.getScene(gameState.isInPlot?'Plot':'Marketplace'); if (s?.moveOtherPlayer) s.moveOtherPlayer(id,x,y); });
+socket.on('playersUpdate', (pl) => {
+  for (const sn of ['Marketplace','Desert','City','Plot']) {
+    const s = gameState.game?.scene?.getScene(sn);
+    if (s?.updateOtherPlayers && s.sys?.isActive()) { s.updateOtherPlayers(pl); break; }
+  }
+});
+socket.on('playerMoved', ({id,x,y}) => {
+  for (const sn of ['Marketplace','Desert','City','Plot']) {
+    const s = gameState.game?.scene?.getScene(sn);
+    if (s?.moveOtherPlayer && s.sys?.isActive()) { s.moveOtherPlayer(id,x,y); break; }
+  }
+});
 socket.on('enteredPlot', ({plot,isOwner}) => {
   gameState.currentPlotData=plot; gameState.isOwner=isOwner; gameState.decorateMode=false; gameState.selectedItem=null;
-  if (gameState.game) { gameState.game.scene.stop('Marketplace'); gameState.game.scene.start('Plot'); }
+  if (gameState.game) {
+    gameState.game.scene.stop('Marketplace'); gameState.game.scene.stop('Desert'); gameState.game.scene.stop('City');
+    gameState.game.scene.start('Plot');
+  }
 });
 socket.on('enteredMarketplace', () => {
   gameState.currentPlotData=null; gameState.isOwner=false; gameState.decorateMode=false; gameState.selectedItem=null;
-  if (gameState.game) { gameState.game.scene.stop('Plot'); gameState.game.scene.start('Marketplace'); }
+  if (gameState.game) {
+    gameState.game.scene.stop('Plot'); gameState.game.scene.stop('Desert'); gameState.game.scene.stop('City');
+    gameState.game.scene.start('Marketplace');
+  }
+});
+socket.on('sceneChanged', ({ scene, x, y }) => {
+  gameState._spawnX = x; gameState._spawnY = y;
+  gameState.currentPlotData=null; gameState.isOwner=false; gameState.decorateMode=false; gameState.selectedItem=null;
+  if (gameState.game) {
+    gameState.game.scene.stop('Marketplace'); gameState.game.scene.stop('Desert'); gameState.game.scene.stop('City'); gameState.game.scene.stop('Plot');
+    const sceneMap = { marketplace: 'Marketplace', desert: 'Desert', city: 'City' };
+    gameState.game.scene.start(sceneMap[scene] || 'Marketplace');
+  }
 });
 socket.on('itemPlaced', (item) => { const s = gameState.game?.scene?.getScene('Plot'); if (s?.addPlacedItem) s.addPlacedItem(item); });
 socket.on('itemRemoved', (itemId) => { const s = gameState.game?.scene?.getScene('Plot'); if (s?.removePlacedItem) s.removePlacedItem(itemId); });
@@ -2440,8 +2996,11 @@ socket.on('chatMessage', ({from,text}) => {
   addChatMessage(from, text, from==='System');
   // Show bubble over character's head (skip system messages)
   if (from !== 'System') {
-    const s = gameState.game?.scene?.getScene(gameState.isInPlot ? 'Plot' : 'Marketplace');
-    if (s?.showChatBubble) s.showChatBubble(from, text);
+    const sceneNames = gameState.isInPlot ? ['Plot'] : ['Marketplace', 'Desert', 'City'];
+    for (const sn of sceneNames) {
+      const s = gameState.game?.scene?.getScene(sn);
+      if (s?.showChatBubble && s.sys?.isActive()) { s.showChatBubble(from, text); break; }
+    }
   }
 });
 socket.on('onlinePlayers', (p) => updatePlayersList(p));
