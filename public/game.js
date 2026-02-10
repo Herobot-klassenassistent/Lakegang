@@ -6,7 +6,7 @@ const socket = io();
 let gameState = {
   user: null, plot: null, currentScene: 'marketplace',
   isInPlot: false, isOwner: false, currentPlotData: null,
-  decorateMode: false, selectedItem: null, placingItem: null,
+  decorateMode: false, removeMode: false, selectedItem: null, placingItem: null,
   players: {}, game: null, charConfig: null
 };
 
@@ -677,9 +677,6 @@ const DECORATIONS = {
     { type: 'tree_t1b', name: 'Oak 2', src: '/assets/trees/tree1b.png' },
     { type: 'tree_t2', name: 'Tall Tree', src: '/assets/trees/tree2.png' },
     { type: 'tree_t2b', name: 'Tall Tree 2', src: '/assets/trees/tree2b.png' },
-    { type: 'tree_t4', name: 'Maple', src: '/assets/trees/tree4.png' },
-    { type: 'tree_t5', name: 'Wide Tree', src: '/assets/trees/tree5.png' },
-    { type: 'tree_t6', name: 'Willow', src: '/assets/trees/tree6.png' },
     { type: 'tree_bush1', name: 'Bush', src: '/assets/trees/bush.png' },
     { type: 'tree_bush2', name: 'Bush 2', src: '/assets/trees/bush1.png' },
     { type: 'tree_bush3', name: 'Bush 3', src: '/assets/trees/bush2.png' },
@@ -1502,6 +1499,12 @@ class BootScene extends Phaser.Scene {
 
     // Load marketplace background
     this.load.image('marketplace_bg', '/assets/BACKGROUND.jpg');
+
+    // Load city background
+    this.load.image('city_bg', '/assets/City background.jpg');
+
+    // Load desert background
+    this.load.image('desert_bg', '/assets/DESERT background,jpg.jpeg');
   }
 
   // Load a character spritesheet by number and create animations with a unique key prefix
@@ -1856,9 +1859,16 @@ class MarketplaceScene extends Phaser.Scene {
     // Camera follows player
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
 
+    this._transitioning = false; // Reset transition flag on scene enter
+
     gameState.isInPlot = false;
     gameState.currentScene = 'marketplace';
     updateUI();
+
+    // Use spawn position if coming from another scene
+    if (gameState._spawnX) { this.player.x = gameState._spawnX; this.playerLabel.x = gameState._spawnX; }
+    if (gameState._spawnY) { this.player.y = gameState._spawnY; this.playerLabel.y = gameState._spawnY - 38; }
+    gameState._spawnX = null; gameState._spawnY = null;
 
     // Request current players in the scene so we see anyone already here
     socket.emit('requestPlayersUpdate');
@@ -2089,55 +2099,8 @@ class DesertScene extends Phaser.Scene {
     const W = 1376, H = 752;
     this.cameras.main.setBounds(0, 0, W, H);
 
-    // Sandy ground
-    const gfx = this.add.graphics();
-    gfx.fillStyle(0xd4a860, 1); gfx.fillRect(0, 0, W, H);
-    // Gradient sand variation
-    const rng = seededRandom(333);
-    for (let i = 0; i < 200; i++) {
-      const sx = rng() * W, sy = rng() * H;
-      const v = rng() * 0.15;
-      gfx.fillStyle(rng() > 0.5 ? 0xc89850 : 0xdab870, v);
-      gfx.fillRect(sx, sy, 20 + rng() * 60, 10 + rng() * 30);
-    }
-    // Sandy path across bottom
-    gfx.fillStyle(0xc09040, 0.5);
-    gfx.fillRect(0, 520, W, 80);
-    gfx.setDepth(0);
-
-    // Place desert environment decorations
-    const placements = [
-      // Big rocks clusters
-      { asset: 'desertrocks_5', x: 200, y: 180 }, { asset: 'desertrocks_3', x: 350, y: 120 },
-      { asset: 'desertrocks_8', x: 900, y: 200 }, { asset: 'desertrocks_6', x: 1100, y: 150 },
-      { asset: 'desertrocks_4', x: 600, y: 100 }, { asset: 'desertrocks_7', x: 750, y: 650 },
-      { asset: 'desertrocks_1', x: 1200, y: 350 }, { asset: 'desertrocks_', x: 100, y: 400 },
-      // Cacti scattered
-      { asset: 'cacti_', x: 150, y: 300 }, { asset: 'cacti_1', x: 400, y: 250 },
-      { asset: 'cacti_3', x: 550, y: 350 }, { asset: 'cacti_4', x: 700, y: 200 },
-      { asset: 'cacti_5', x: 850, y: 400 }, { asset: 'cacti_6', x: 1000, y: 300 },
-      { asset: 'cacti_7', x: 300, y: 500 }, { asset: 'cacti_8', x: 1150, y: 500 },
-      { asset: 'cacti_9', x: 500, y: 600 }, { asset: 'cacti_10', x: 800, y: 550 },
-      { asset: 'cacti_4', x: 1250, y: 250 }, { asset: 'cacti_1', x: 650, y: 450 },
-      // Desert foliage
-      { asset: 'desertfoliage_1', x: 120, y: 550 }, { asset: 'desertfoliage_2', x: 250, y: 650 },
-      { asset: 'desertfoliage_3', x: 450, y: 450 }, { asset: 'desertfoliage_4', x: 680, y: 350 },
-      { asset: 'desertfoliage_5', x: 930, y: 550 }, { asset: 'desertfoliage_6', x: 1100, y: 600 },
-      { asset: 'desertfoliage_7', x: 350, y: 380 }, { asset: 'desertfoliage_8', x: 780, y: 480 },
-      { asset: 'desertfoliage_9', x: 1050, y: 420 }, { asset: 'desertfoliage_10', x: 200, y: 480 },
-      { asset: 'desertfoliage_11', x: 520, y: 200 }, { asset: 'desertfoliage_12', x: 870, y: 300 },
-      { asset: 'desertfoliage_13', x: 1200, y: 480 }, { asset: 'desertfoliage_14', x: 670, y: 620 },
-      { asset: 'desertfoliage_15', x: 400, y: 580 },
-      // More rocks for depth
-      { asset: 'desertrocks_5', x: 500, y: 500 }, { asset: 'desertrocks_3', x: 1050, y: 250 },
-    ];
-
-    for (const p of placements) {
-      const key = 'desert_' + p.asset;
-      if (this.textures.exists(key)) {
-        this.add.image(p.x, p.y, key).setDepth(p.y);
-      }
-    }
+    // === DESERT BACKGROUND IMAGE ===
+    this.add.image(W / 2, H / 2, 'desert_bg').setDepth(0);
 
     // Navigation labels
     this.rightLabel = this.add.text(W - 30, H / 2, 'LAKE >', {
@@ -2174,6 +2137,7 @@ class DesertScene extends Phaser.Scene {
     this.wasMoving = false;
 
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+    this._transitioning = false; // Reset transition flag on scene enter
     gameState.isInPlot = false;
     gameState.currentScene = 'desert';
     updateUI();
@@ -2288,78 +2252,8 @@ class CityScene extends Phaser.Scene {
     const W = 1376, H = 752;
     this.cameras.main.setBounds(0, 0, W, H);
 
-    // City ground - stone/concrete
-    const gfx = this.add.graphics();
-    gfx.fillStyle(0x555566, 1); gfx.fillRect(0, 0, W, H);
-    const rng = seededRandom(777);
-    // Pavement variation
-    for (let y = 0; y < H; y += 48) {
-      for (let x = 0; x < W; x += 48) {
-        const v = (rng() * 20 - 10) | 0;
-        gfx.fillStyle(Phaser.Display.Color.GetColor(85 + v, 85 + v, 102 + v), 1);
-        gfx.fillRect(x, y, 47, 47);
-      }
-    }
-    // Road
-    gfx.fillStyle(0x3a3a4a, 1); gfx.fillRect(0, 500, W, 100);
-    gfx.fillStyle(0xcccc44, 1);
-    for (let x = 0; x < W; x += 80) { gfx.fillRect(x, 548, 40, 4); } // dashed line
-    // Sidewalk
-    gfx.fillStyle(0x888899, 1); gfx.fillRect(0, 490, W, 12); gfx.fillRect(0, 598, W, 12);
-    gfx.setDepth(0);
-
-    // Place city decorations
-    const placements = [
-      // Metal structures / buildings backdrop
-      { asset: 'metalstructure', x: 100, y: 120 }, { asset: 'metalstructure1', x: 300, y: 100 },
-      { asset: 'metalstructure2', x: 500, y: 130 }, { asset: 'metalstructure3', x: 700, y: 90 },
-      { asset: 'metalstructure4', x: 900, y: 110 }, { asset: 'metalstructure5', x: 1100, y: 100 },
-      { asset: 'metalstructure', x: 1250, y: 120 },
-      // Crane
-      { asset: 'crane', x: 1300, y: 200 },
-      // Benches along sidewalk
-      { asset: 'bench1hor', x: 200, y: 475 }, { asset: 'bench2hor', x: 600, y: 475 },
-      { asset: 'bench1hor', x: 1000, y: 475 }, { asset: 'bench2hor', x: 400, y: 625 },
-      { asset: 'bench1hor', x: 800, y: 625 },
-      // Lampposts
-      { asset: 'lamppost', x: 150, y: 460 }, { asset: 'lamppost2', x: 450, y: 460 },
-      { asset: 'lamppost', x: 750, y: 460 }, { asset: 'lamppost2', x: 1050, y: 460 },
-      { asset: 'lamppost', x: 250, y: 640 }, { asset: 'lamppost2', x: 650, y: 640 },
-      { asset: 'lamppost', x: 1150, y: 640 },
-      // Greenery
-      { asset: 'greenery_decor_1', x: 180, y: 300 }, { asset: 'greenery_decor_2', x: 400, y: 350 },
-      { asset: 'greenery_decor_3', x: 650, y: 280 }, { asset: 'greenery_decor_4', x: 880, y: 320 },
-      { asset: 'greenery_decor_5', x: 1100, y: 300 }, { asset: 'greenery_decor_6', x: 300, y: 250 },
-      { asset: 'greenery_decor_7', x: 550, y: 380 }, { asset: 'greenery_decor_13', x: 780, y: 400 },
-      { asset: 'greenery_decor_18', x: 1000, y: 380 }, { asset: 'greenery_decor_19', x: 200, y: 420 },
-      { asset: 'greenery_decor_20', x: 500, y: 200 }, { asset: 'greenery_decor_21', x: 750, y: 180 },
-      { asset: 'greenery_decor_22', x: 1050, y: 220 },
-      // Post flowers
-      { asset: 'post_flowers', x: 350, y: 440 }, { asset: 'post_flowers2', x: 700, y: 440 },
-      { asset: 'post_flowers3', x: 1100, y: 440 },
-      // Crates and dumpsters
-      { asset: 'crate', x: 130, y: 650 }, { asset: 'crate1', x: 160, y: 660 },
-      { asset: 'crate2', x: 950, y: 650 }, { asset: 'dumpster', x: 1200, y: 660 },
-      { asset: 'garbagebin', x: 350, y: 655 }, { asset: 'garbagebin2', x: 550, y: 470 },
-      // Traffic signs
-      { asset: 'trafficsign_1', x: 250, y: 480 }, { asset: 'trafficsign_3', x: 850, y: 480 },
-      { asset: 'trafficsign_5', x: 1200, y: 480 },
-      // Water fountain centerpiece
-      { asset: 'waterfountain', x: 688, y: 350 },
-      // Directions sign
-      { asset: 'directions', x: 50, y: 400 },
-      // Pillars
-      { asset: 'smallpillar', x: 600, y: 250 }, { asset: 'smallpillardark', x: 800, y: 250 },
-      // Benches XL
-      { asset: 'benchesXL', x: 688, y: 430 },
-    ];
-
-    for (const p of placements) {
-      const key = 'city_' + p.asset;
-      if (this.textures.exists(key)) {
-        this.add.image(p.x, p.y, key).setDepth(p.y);
-      }
-    }
+    // === CITY BACKGROUND IMAGE ===
+    this.add.image(W / 2, H / 2, 'city_bg').setDepth(0);
 
     // Navigation label
     this.leftLabel = this.add.text(30, H / 2, '< LAKE', {
@@ -2396,6 +2290,7 @@ class CityScene extends Phaser.Scene {
     this.wasMoving = false;
 
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+    this._transitioning = false; // Reset transition flag on scene enter
     gameState.isInPlot = false;
     gameState.currentScene = 'city';
     updateUI();
@@ -2588,11 +2483,26 @@ class PlotScene extends Phaser.Scene {
     // Camera follows
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
 
-    // Click to place
+    // Click to place or remove
     this.input.on('pointerdown', (pointer) => {
-      if (gameState.decorateMode && gameState.selectedItem && gameState.isOwner) {
-        // Convert screen coords to world coords
-        const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      if (!gameState.isOwner || !gameState.currentPlotData) return;
+      const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+
+      // Remove mode: left-click or right-click removes nearest item
+      if (gameState.removeMode || pointer.rightButtonDown()) {
+        let closestId = null, closestDist = 40; // 40px detection radius
+        for (const [itemId, obj] of Object.entries(this.placedItems)) {
+          const dist = Phaser.Math.Distance.Between(worldPoint.x, worldPoint.y, obj.sprite.x, obj.sprite.y);
+          if (dist < closestDist) { closestDist = dist; closestId = itemId; }
+        }
+        if (closestId) {
+          socket.emit('removeItem', { plotId: gameState.currentPlotData.id, itemId: closestId });
+        }
+        return;
+      }
+
+      // Decorate mode: place item
+      if (gameState.decorateMode && gameState.selectedItem) {
         const item = {
           type: gameState.selectedItem.type,
           x: Math.round(worldPoint.x),
@@ -2601,17 +2511,6 @@ class PlotScene extends Phaser.Scene {
           h: gameState.selectedItem.h
         };
         socket.emit('placeItem', { plotId: gameState.currentPlotData.id, item });
-      }
-    });
-
-    // Right-click remove
-    this.input.on('pointerdown', (pointer) => {
-      if (pointer.rightButtonDown() && gameState.isOwner && gameState.currentPlotData) {
-        const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
-        for (const [itemId, obj] of Object.entries(this.placedItems)) {
-          const dist = Phaser.Math.Distance.Between(worldPoint.x, worldPoint.y, obj.sprite.x, obj.sprite.y);
-          if (dist < 30) { socket.emit('removeItem', { plotId: gameState.currentPlotData.id, itemId }); break; }
-        }
       }
     });
     this.input.mouse.disableContextMenu();
@@ -2672,6 +2571,22 @@ class PlotScene extends Phaser.Scene {
       }
       this.placementGhost.setPosition(worldPoint.x, worldPoint.y).setTexture(gameState.selectedItem.type);
     } else if (this.placementGhost) { this.placementGhost.destroy(); this.placementGhost = null; }
+
+    // Remove mode: highlight nearest item in red
+    if (gameState.removeMode && gameState.isOwner) {
+      const worldPoint = this.cameras.main.getWorldPoint(this.input.activePointer.x, this.input.activePointer.y);
+      let closestId = null, closestDist = 40;
+      for (const [itemId, obj] of Object.entries(this.placedItems)) {
+        const dist = Phaser.Math.Distance.Between(worldPoint.x, worldPoint.y, obj.sprite.x, obj.sprite.y);
+        if (dist < closestDist) { closestDist = dist; closestId = itemId; }
+      }
+      for (const [itemId, obj] of Object.entries(this.placedItems)) {
+        if (itemId === closestId) obj.sprite.setTint(0xff4444);
+        else obj.sprite.clearTint();
+      }
+    } else if (this.placedItems) {
+      for (const obj of Object.values(this.placedItems)) { if (obj.sprite) obj.sprite.clearTint(); }
+    }
   }
 
   addPlacedItem(item) {
@@ -2802,14 +2717,16 @@ function updateUI() {
   const btnMyPlot = document.getElementById('btn-my-plot');
   const btnMarket = document.getElementById('btn-marketplace');
   const btnDecorate = document.getElementById('btn-decorate');
+  const btnRemove = document.getElementById('btn-remove');
   const decoPanel = document.getElementById('decoration-panel');
   if (!gameState.user) { uiBar.style.display='none'; chatBox.style.display='none'; return; }
   uiBar.style.display='flex'; chatBox.style.display='block';
   if (gameState.isInPlot) {
     sceneLabel.textContent = gameState.isOwner?'YOUR PLOT':'VISITING PLOT';
     btnMyPlot.style.display='none'; btnMarket.style.display=''; btnDecorate.style.display=gameState.isOwner?'':'none';
+    btnRemove.style.display=gameState.isOwner?'':'none';
   } else {
-    sceneLabel.textContent='MARKETPLACE'; btnMyPlot.style.display=''; btnMarket.style.display='none'; btnDecorate.style.display='none'; decoPanel.style.display='none'; gameState.decorateMode=false;
+    sceneLabel.textContent='MARKETPLACE'; btnMyPlot.style.display=''; btnMarket.style.display='none'; btnDecorate.style.display='none'; btnRemove.style.display='none'; decoPanel.style.display='none'; gameState.decorateMode=false; gameState.removeMode=false;
   }
 }
 
@@ -2905,8 +2822,28 @@ document.getElementById('btn-decorate').addEventListener('click', () => {
   gameState.decorateMode = !gameState.decorateMode;
   const panel = document.getElementById('decoration-panel');
   const btn = document.getElementById('btn-decorate');
-  if (gameState.decorateMode) { panel.style.display='block'; btn.classList.add('active'); btn.textContent='Done'; }
+  if (gameState.decorateMode) {
+    panel.style.display='block'; btn.classList.add('active'); btn.textContent='Done';
+    // Turn off remove mode
+    gameState.removeMode = false;
+    const rmBtn = document.getElementById('btn-remove');
+    rmBtn.classList.remove('active'); rmBtn.textContent = 'Remove'; rmBtn.style.backgroundColor = '';
+  }
   else { panel.style.display='none'; btn.classList.remove('active'); btn.textContent='Decorate'; gameState.selectedItem=null; }
+});
+document.getElementById('btn-remove').addEventListener('click', () => {
+  gameState.removeMode = !gameState.removeMode;
+  const btn = document.getElementById('btn-remove');
+  if (gameState.removeMode) {
+    btn.classList.add('active'); btn.textContent = 'Stop Removing'; btn.style.backgroundColor = '#cc4444';
+    // Turn off decorate mode if active
+    gameState.decorateMode = false; gameState.selectedItem = null;
+    document.getElementById('decoration-panel').style.display = 'none';
+    document.getElementById('btn-decorate').classList.remove('active');
+    document.getElementById('btn-decorate').textContent = 'Decorate';
+  } else {
+    btn.classList.remove('active'); btn.textContent = 'Remove'; btn.style.backgroundColor = '';
+  }
 });
 document.getElementById('btn-players').addEventListener('click', () => {
   const panel = document.getElementById('players-panel');
