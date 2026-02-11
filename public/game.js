@@ -2983,39 +2983,50 @@ class PlotScene extends Phaser.Scene {
       let newX = Phaser.Math.Clamp(this.player.x + dx, 50, W - 50);
       let newY = Phaser.Math.Clamp(this.player.y + dy, 50, H - 50);
 
-      // House wall collision - player can enter through door
+      // House wall collision - simple wall segments the player cannot cross
+      // except through the door gap in the front (south) wall
       const hb = this._houseBounds;
       if (hb) {
-        const inHouseX = newX > hb.x + 32 && newX < hb.x + hb.w - 32;
-        const atFrontWall = newY < hb.y + hb.h && newY > hb.y + hb.h - 40;
-        const inDoorGap = newX > hb.doorStart && newX < hb.doorEnd;
+        const oldX = this.player.x, oldY = this.player.y;
+        const margin = 16; // player half-width for collision
+        const wallL = hb.x + 32;   // left wall inner edge
+        const wallR = hb.x + hb.w - 32; // right wall inner edge
+        const wallT = hb.y + 32;   // top wall inner edge
+        const wallB = hb.y + hb.h - 16; // front wall y
+        const inDoor = newX > hb.doorStart && newX < hb.doorEnd;
 
-        // Block entry through walls (not door)
-        if (inHouseX && atFrontWall && !inDoorGap) {
-          // Player is at front wall but not in door - block
-          if (this.player.y >= hb.y + hb.h) {
-            newY = Math.max(newY, hb.y + hb.h);
-          } else {
-            newY = Math.min(newY, hb.y + hb.h - 40);
+        // Was player inside the house?
+        const wasInside = oldX > wallL && oldX < wallR && oldY > wallT && oldY < wallB + 16;
+
+        if (wasInside) {
+          // Inside -> clamp to stay inside walls, but allow exit through door
+          newX = Phaser.Math.Clamp(newX, wallL + margin, wallR - margin);
+          newY = Phaser.Math.Clamp(newY, wallT + margin, inDoor ? H - 50 : wallB);
+        } else {
+          // Outside -> block entry through walls, allow entry through door
+          const wouldEnterX = newX > wallL && newX < wallR;
+          const wouldEnterY = newY > wallT && newY < wallB + 16;
+
+          if (wouldEnterX && wouldEnterY) {
+            if (inDoor && newY > wallB - 10) {
+              // Walking through door from outside - allow
+            } else {
+              // Trying to enter through a wall - block
+              // Try x-only
+              if (!(this.player.x > wallL && this.player.x < wallR && oldY > wallT && oldY < wallB + 16)) {
+                if (newX > wallL && newX < wallR) {
+                  if (oldX <= wallL) newX = wallL - margin;
+                  else if (oldX >= wallR) newX = wallR + margin;
+                }
+              }
+              if (!(newX > wallL && newX < wallR && oldY > wallT && oldY < wallB + 16)) {
+                // fine
+              } else {
+                if (oldY <= wallT) newY = wallT - margin;
+                else if (oldY >= wallB) newY = wallB + margin;
+              }
+            }
           }
-        }
-
-        // Inside house bounds
-        if (newX > hb.x && newX < hb.x + hb.w && newY > hb.y && newY < hb.y + hb.h) {
-          // Clamp to inside walls
-          newX = Phaser.Math.Clamp(newX, hb.x + 40, hb.x + hb.w - 40);
-          newY = Phaser.Math.Clamp(newY, hb.y + 50, hb.y + hb.h - 10);
-        }
-
-        // Block side wall entry
-        const wasInsideX = this.player.x > hb.x + 32 && this.player.x < hb.x + hb.w - 32;
-        const wasInsideY = this.player.y > hb.y && this.player.y < hb.y + hb.h;
-        if (!wasInsideX && newY > hb.y && newY < hb.y + hb.h) {
-          if (newX > hb.x && newX < hb.x + 40) newX = hb.x;
-          if (newX > hb.x + hb.w - 40 && newX < hb.x + hb.w) newX = hb.x + hb.w;
-        }
-        if (!wasInsideY && newX > hb.x + 32 && newX < hb.x + hb.w - 32) {
-          if (newY > hb.y && newY < hb.y + 40 && !(newX > hb.doorStart && newX < hb.doorEnd)) newY = hb.y;
         }
       }
 
@@ -3076,11 +3087,12 @@ class PlotScene extends Phaser.Scene {
 
   addPlacedItem(item) {
     if (this.placedItems[item.id]) return;
-    const sprite = this.add.image(item.x, item.y, item.type).setDepth(item.y + 10);
+    const sprite = this.add.image(item.x, item.y, item.type);
+    sprite.setDepth(item.y + sprite.displayHeight / 2);
     this.placedItems[item.id] = { sprite, data: item };
   }
   removePlacedItem(itemId) { if (this.placedItems[itemId]) { this.placedItems[itemId].sprite.destroy(); delete this.placedItems[itemId]; } }
-  movePlacedItem(itemId, x, y) { if (this.placedItems[itemId]) { this.placedItems[itemId].sprite.setPosition(x, y).setDepth(y + 10); } }
+  movePlacedItem(itemId, x, y) { if (this.placedItems[itemId]) { const s = this.placedItems[itemId].sprite; s.setPosition(x, y).setDepth(y + s.displayHeight / 2); } }
 
   addOtherPlayer(data) {
     if (this.otherPlayers[data.id]) { this.otherPlayers[data.id].sprite.setPosition(data.x,data.y); this.otherPlayers[data.id].label.setPosition(data.x,data.y-50); return; }
