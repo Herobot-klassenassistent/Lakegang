@@ -145,19 +145,24 @@ io.on('connection', (socket) => {
       return;
     }
 
-    // Verify NFT ownership on-chain
-    socket.emit('loginStatus', 'Verifying NFT ownership on Ethereum...');
-    let owns;
-    try {
-      owns = await verifyOwnership(charNumber, walletAddress);
-    } catch (rpcErr) {
-      console.error('RPC error:', rpcErr.message);
-      socket.emit('loginError', 'Could not verify ownership — Ethereum RPC error. Please try again.');
-      return;
-    }
-    if (!owns) {
-      socket.emit('loginError', `Wallet does not own Timeless Character #${charNumber}. Check your wallet address and character number.`);
-      return;
+    // Verify NFT ownership on-chain (skip in local dev)
+    const isLocal = process.env.NODE_ENV !== 'production' && !process.env.RENDER;
+    if (!isLocal) {
+      socket.emit('loginStatus', 'Verifying NFT ownership on Ethereum...');
+      let owns;
+      try {
+        owns = await verifyOwnership(charNumber, walletAddress);
+      } catch (rpcErr) {
+        console.error('RPC error:', rpcErr.message);
+        socket.emit('loginError', 'Could not verify ownership — Ethereum RPC error. Please try again.');
+        return;
+      }
+      if (!owns) {
+        socket.emit('loginError', `Wallet does not own Timeless Character #${charNumber}. Check your wallet address and character number.`);
+        return;
+      }
+    } else {
+      console.log(`[DEV] Skipping NFT verification for ${username} #${charNumber}`);
     }
 
     // Check if another online player is already using this character
