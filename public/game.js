@@ -2077,24 +2077,30 @@ class MarketplaceScene extends Phaser.Scene {
       let newY = Phaser.Math.Clamp(this.player.y + dy, 20, 732);
 
       // === LAKE BOUNDARY ===
-      // Lake rect and platform entry gap at top-left
-      const LAKE = { x1: 490, y1: 235, x2: 830, y2: 430 };
-      const ENTRY = { x1: 470, y1: 220, x2: 545, y2: 260 }; // platform dock
-      const inLake = (px, py) => px > LAKE.x1 && px < LAKE.x2 && py > LAKE.y1 && py < LAKE.y2;
-      const inEntry = (px, py) => px > ENTRY.x1 && px < ENTRY.x2 && py > ENTRY.y1 && py < ENTRY.y2;
-      const wasInLake = inLake(this.player.x, this.player.y);
+      // Lake water area defined as polygon rects matching the blue pixels
+      // Dock/entry platform at top-left of lake
+      const LAKE_RECTS = [
+        { x1: 510, y1: 230, x2: 850, y2: 410 },  // main body
+        { x1: 850, y1: 250, x2: 880, y2: 370 },   // right extension near house
+      ];
+      const DOCK = { x1: 475, y1: 215, x2: 548, y2: 255 }; // wooden dock entry
+      const inLake = (px, py) => {
+        for (const r of LAKE_RECTS) {
+          if (px > r.x1 && px < r.x2 && py > r.y1 && py < r.y2) return true;
+        }
+        return false;
+      };
+      const inDock = (px, py) => px > DOCK.x1 && px < DOCK.x2 && py > DOCK.y1 && py < DOCK.y2;
+      const wasInLake = inLake(this.player.x, this.player.y) || inDock(this.player.x, this.player.y);
       const willBeInLake = inLake(newX, newY);
 
       if (willBeInLake && !wasInLake) {
-        // Trying to enter the lake — only allow through the entry platform
-        if (!inEntry(this.player.x, this.player.y) && !inEntry(newX, newY)) {
-          // Block: keep whichever axis would enter the lake, allow the other
-          const wouldXEnter = inLake(newX, this.player.y);
-          const wouldYEnter = inLake(this.player.x, newY);
-          if (wouldXEnter) newX = this.player.x;
-          if (wouldYEnter) newY = this.player.y;
-          // If both blocked, don't move at all
-          if (inLake(newX, newY)) { newX = this.player.x; newY = this.player.y; }
+        // Trying to enter the lake — only allow through the dock
+        if (!inDock(this.player.x, this.player.y) && !inDock(newX, newY)) {
+          // Block: try sliding along one axis
+          if (!inLake(newX, this.player.y)) { newY = this.player.y; }
+          else if (!inLake(this.player.x, newY)) { newX = this.player.x; }
+          else { newX = this.player.x; newY = this.player.y; }
         }
       }
 
