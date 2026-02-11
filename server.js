@@ -259,8 +259,8 @@ io.on('connection', (socket) => {
 
     const newScene = 'plot_' + plot.id;
     player.scene = newScene;
-    player.x = 480;
-    player.y = 400;
+    player.x = 688;
+    player.y = 420;
     socket.join(newScene);
 
     socket.emit('enteredPlot', {

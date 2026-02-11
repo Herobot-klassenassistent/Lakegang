@@ -645,8 +645,13 @@ const DECORATIONS = {
     { type: 'furn_painting4', name: 'Painting', src: '/assets/furniture/painting_4.png' },
     { type: 'furn_painting5', name: 'Painting 2', src: '/assets/furniture/painting_5.png' },
     { type: 'furn_painting6', name: 'Painting 3', src: '/assets/furniture/painting_6.png' },
+    { type: 'furn_painting7', name: 'Painting 4', src: '/assets/furniture/painting_7.png' },
     { type: 'furn_window1', name: 'Window', src: '/assets/furniture/window_1.png' },
-    { type: 'furn_window2', name: 'Window 2', src: '/assets/furniture/window_3.png' },
+    { type: 'furn_window2', name: 'Window 2', src: '/assets/furniture/window_2.png' },
+    { type: 'furn_window3', name: 'Window 3', src: '/assets/furniture/window_3.png' },
+    { type: 'furn_window4', name: 'Window 4', src: '/assets/furniture/window_4.png' },
+    { type: 'furn_window5', name: 'Window 5', src: '/assets/furniture/window_5.png' },
+    { type: 'furn_window6', name: 'Window 6', src: '/assets/furniture/window_6.png' },
   ],
   outdoor: [
     { type: 'furn_bbq1', name: 'Barbecue', src: '/assets/furniture/barbecue1.png' },
@@ -1840,6 +1845,58 @@ class BootScene extends Phaser.Scene {
     }
     this.textures.addCanvas('tile_darkgrass', dgr);
 
+    // === WOODEN FLOOR TILE ===
+    const wood = document.createElement('canvas');
+    wood.width = 32; wood.height = 32;
+    const woodCtx = wood.getContext('2d');
+    woodCtx.fillStyle = '#8B6914';
+    woodCtx.fillRect(0, 0, 32, 32);
+    const wdrng = seededRandom(4321);
+    // Planks
+    for (let py = 0; py < 4; py++) {
+      const v = wdrng() * 20 - 10;
+      woodCtx.fillStyle = rgbToHex(139 + v|0, 105 + v|0, 20 + v|0);
+      woodCtx.fillRect(0, py * 8, 32, 7);
+      woodCtx.fillStyle = rgbToHex(120 + v|0, 88 + v|0, 15 + v|0);
+      woodCtx.fillRect(0, py * 8 + 7, 32, 1);
+      // Wood grain
+      for (let i = 0; i < 4; i++) {
+        woodCtx.fillStyle = rgbToHex(150 + v|0, 115 + v|0, 28 + v|0);
+        woodCtx.fillRect(wdrng() * 28 | 0, py * 8 + 1 + (wdrng() * 5 | 0), 3 + wdrng() * 6 | 0, 1);
+      }
+    }
+    this.textures.addCanvas('tile_wood', wood);
+
+    // === WALL TILE (interior) ===
+    const wall = document.createElement('canvas');
+    wall.width = 32; wall.height = 32;
+    const wallCtx = wall.getContext('2d');
+    wallCtx.fillStyle = '#6B5B4F';
+    wallCtx.fillRect(0, 0, 32, 32);
+    const wlrng = seededRandom(8765);
+    // Brick pattern
+    for (let by = 0; by < 4; by++) {
+      for (let bx = 0; bx < 2; bx++) {
+        const ox = bx * 16 + (by % 2) * 8;
+        const oy = by * 8;
+        const v = wlrng() * 16 - 8;
+        wallCtx.fillStyle = rgbToHex(95 + v|0, 80 + v|0, 68 + v|0);
+        wallCtx.fillRect(ox, oy, 15, 7);
+        // Top highlight
+        wallCtx.fillStyle = rgbToHex(110 + v|0, 95 + v|0, 82 + v|0);
+        wallCtx.fillRect(ox, oy, 15, 1);
+        // Bottom shadow
+        wallCtx.fillStyle = rgbToHex(78 + v|0, 65 + v|0, 55 + v|0);
+        wallCtx.fillRect(ox, oy + 6, 15, 1);
+      }
+    }
+    // Mortar lines
+    wallCtx.fillStyle = '#5a4d42';
+    for (let by = 0; by < 4; by++) {
+      wallCtx.fillRect(0, by * 8 + 7, 32, 1);
+    }
+    this.textures.addCanvas('tile_wall', wall);
+
     // === DOOR/PORTAL - richly drawn ===
     const door = document.createElement('canvas');
     door.width = 40; door.height = 56;
@@ -2703,49 +2760,132 @@ class PlotScene extends Phaser.Scene {
   constructor() { super('Plot'); }
 
   create() {
-    const W = 960, H = 720;
+    const W = 1376, H = 752;
     this.cameras.main.setBounds(0, 0, W, H);
 
-    // Ground with varied grass
     const rng = seededRandom(7777);
+
+    // === OUTDOOR GARDEN AREA (full scene) ===
+    // Grass ground everywhere
     for (let y = 0; y < H; y += 32) {
       for (let x = 0; x < W; x += 32) {
-        const isEdge = x<48||x>W-80||y<48||y>H-80;
-        this.add.image(x+16, y+16, isEdge?'tile_darkgrass':(rng()>0.5?'tile_grass':'tile_grass2'));
+        const isEdge = x < 32 || x > W - 64 || y < 32 || y > H - 64;
+        this.add.image(x + 16, y + 16, isEdge ? 'tile_darkgrass' : (rng() > 0.5 ? 'tile_grass' : 'tile_grass2'));
       }
     }
 
-    // Stone walls all around
+    // === HOUSE INTERIOR (upper-center area) ===
+    // House dimensions
+    const houseX = 288, houseY = 32;
+    const houseW = 800, houseH = 320;
+    const wallThick = 32;
+    const floorY = houseY + wallThick;
+    const floorH = houseH - wallThick;
+
+    // Wooden floor inside house
+    for (let y = floorY; y < houseY + houseH; y += 32) {
+      for (let x = houseX + wallThick; x < houseX + houseW - wallThick; x += 32) {
+        this.add.image(x + 16, y + 16, 'tile_wood').setDepth(1);
+      }
+    }
+
+    // Back wall (top) - always behind player
+    for (let x = houseX; x < houseX + houseW; x += 32) {
+      this.add.image(x + 16, houseY + 16, 'tile_wall').setDepth(2);
+    }
+    // Left wall
+    for (let y = houseY; y < houseY + houseH; y += 32) {
+      this.add.image(houseX + 16, y + 16, 'tile_wall').setDepth(2);
+    }
+    // Right wall
+    for (let y = houseY; y < houseY + houseH; y += 32) {
+      this.add.image(houseX + houseW - 16, y + 16, 'tile_wall').setDepth(2);
+    }
+    // Front wall (bottom) with door gap in center
+    const doorGapStart = houseX + houseW / 2 - 48;
+    const doorGapEnd = houseX + houseW / 2 + 48;
+    for (let x = houseX; x < houseX + houseW; x += 32) {
+      if (x + 16 >= doorGapStart && x + 16 <= doorGapEnd) continue; // door gap
+      this.add.image(x + 16, houseY + houseH - 16, 'tile_wall').setDepth(houseY + houseH);
+    }
+
+    // Door frame markers
+    this.add.image(doorGapStart - 8, houseY + houseH - 16, 'tile_wall').setDepth(houseY + houseH);
+    this.add.image(doorGapEnd + 8, houseY + houseH - 16, 'tile_wall').setDepth(houseY + houseH);
+
+    // Painting frame spots on back wall (visual markers where paintings look good)
+    const framePositions = [
+      { x: houseX + 160, y: houseY + 20 },
+      { x: houseX + 400, y: houseY + 20 },
+      { x: houseX + 640, y: houseY + 20 },
+    ];
+    for (const fp of framePositions) {
+      // Subtle frame outline on wall
+      const frame = this.add.rectangle(fp.x, fp.y, 56, 48, 0x5a3a1a).setDepth(3).setAlpha(0.3);
+      frame.setStrokeStyle(2, 0x8a6a3a);
+    }
+
+    // Windows on back wall
+    if (this.textures.exists('furn_window1')) {
+      this.add.image(houseX + 80, houseY + 20, 'furn_window1').setDepth(3).setScale(0.8);
+      this.add.image(houseX + houseW - 80, houseY + 20, 'furn_window2').setDepth(3).setScale(0.8);
+    }
+
+    // === GARDEN ELEMENTS (below house) ===
+    // Stone path from house door to exit
+    const pathCenterX = W / 2;
+    for (let y = houseY + houseH + 16; y < H - 48; y += 32) {
+      this.add.image(pathCenterX - 16, y, 'tile_path').setDepth(1);
+      this.add.image(pathCenterX + 16, y, 'tile_path').setDepth(1);
+    }
+
+    // Garden fence (stone border around the plot)
     for (let x = 0; x < W; x += 32) {
-      this.add.image(x+16, 16, 'tile_stone').setDepth(0);
-      this.add.image(x+16, H-16, 'tile_stone').setDepth(0);
+      this.add.image(x + 16, 16, 'tile_stone').setDepth(0);
+      this.add.image(x + 16, H - 16, 'tile_stone').setDepth(0);
     }
     for (let y = 0; y < H; y += 32) {
-      this.add.image(16, y+16, 'tile_stone').setDepth(0);
-      this.add.image(W-16, y+16, 'tile_stone').setDepth(0);
+      this.add.image(16, y + 16, 'tile_stone').setDepth(0);
+      this.add.image(W - 16, y + 16, 'tile_stone').setDepth(0);
     }
 
-    // Corner trees for atmosphere
-    this.add.image(60, 60, 'tree_pine').setDepth(60);
-    this.add.image(W-60, 60, 'tree_pine').setDepth(60);
-    this.add.image(60, H-100, 'tree_oak').setDepth(H-100);
-    this.add.image(W-60, H-100, 'tree_oak').setDepth(H-100);
+    // Corner trees
+    this.add.image(60, H - 80, 'tree_oak').setDepth(H - 80 + 40);
+    this.add.image(W - 60, H - 80, 'tree_oak').setDepth(H - 80 + 40);
+    this.add.image(80, 420, 'tree_pine').setDepth(420 + 40);
+    this.add.image(W - 80, 420, 'tree_pine').setDepth(420 + 40);
 
-    // Exit door
-    this.exitDoor = this.add.image(W/2, H-28, 'door_portal').setDepth(H).setScale(1.3);
-    this.exitLabel = this.add.text(W/2, H-68, 'EXIT [E]', {
-      fontSize:'11px',fontFamily:'Courier New',color:'#ff6b6b',stroke:'#000',strokeThickness:3
+    // Garden bushes along edges
+    if (this.textures.exists('tree_bush1')) {
+      this.add.image(120, 500, 'tree_bush1').setDepth(500 + 20);
+      this.add.image(W - 120, 500, 'tree_bush2').setDepth(500 + 20);
+      this.add.image(160, 650, 'tree_bush3').setDepth(650 + 20);
+      this.add.image(W - 160, 650, 'tree_bush1').setDepth(650 + 20);
+    }
+
+    // Small flower patches in garden
+    if (this.textures.exists('furn_gardenplant1')) {
+      this.add.image(200, 440, 'furn_gardenplant1').setDepth(440 + 10);
+      this.add.image(W - 200, 440, 'furn_gardenplant2').setDepth(440 + 10);
+      this.add.image(350, 600, 'furn_gardenplant3').setDepth(600 + 10);
+      this.add.image(W - 350, 600, 'furn_gardenplant1').setDepth(600 + 10);
+    }
+
+    // Exit door at bottom center
+    this.exitDoor = this.add.image(W / 2, H - 28, 'door_portal').setDepth(H).setScale(1.3);
+    this.exitLabel = this.add.text(W / 2, H - 68, 'EXIT [E]', {
+      fontSize: '11px', fontFamily: 'Courier New', color: '#ff6b6b', stroke: '#000', strokeThickness: 3
     }).setOrigin(0.5).setDepth(10000);
 
     // Plot name
     const plotData = gameState.currentPlotData;
-    this.add.text(W/2, 36, plotData?plotData.name:'My Plot', {
-      fontSize:'16px',fontFamily:'Courier New',color:'#53d769',stroke:'#000',strokeThickness:4
+    this.add.text(W / 2, houseY + 10, plotData ? plotData.name : 'My Plot', {
+      fontSize: '16px', fontFamily: 'Courier New', color: '#53d769', stroke: '#000', strokeThickness: 4
     }).setOrigin(0.5).setDepth(10000);
 
     if (plotData && !gameState.isOwner) {
-      this.add.text(W/2, 56, '~ Visiting ~', {
-        fontSize:'11px',fontFamily:'Courier New',color:'#7ec8e3',stroke:'#000',strokeThickness:2
+      this.add.text(W / 2, houseY + 30, '~ Visiting ~', {
+        fontSize: '11px', fontFamily: 'Courier New', color: '#7ec8e3', stroke: '#000', strokeThickness: 2
       }).setOrigin(0.5).setDepth(10000);
     }
 
@@ -2755,22 +2895,25 @@ class PlotScene extends Phaser.Scene {
       for (const item of plotData.items) this.addPlacedItem(item);
     }
 
-    // Player - load character spritesheet dynamically
+    // Player
     const charNum = gameState.charNumber || 1;
     const texKey = 'char_' + charNum;
     BootScene.loadCharacterSprite(this, charNum, texKey);
     this.playerTexKey = texKey;
 
+    const startX = W / 2;
+    const startY = houseY + houseH + 60;
+
     if (this.textures.exists(texKey)) {
-      this.player = this.add.sprite(W/2, H-120, texKey).setScale(1.33).setDepth(10000);
+      this.player = this.add.sprite(startX, startY, texKey).setScale(1.33).setDepth(startY + 20);
       this.player.play(texKey + '_idle_down');
     } else {
-      this.player = this.add.sprite(W/2, H-120, '__DEFAULT').setScale(1.33).setDepth(10000);
+      this.player = this.add.sprite(startX, startY, '__DEFAULT').setScale(1.33).setDepth(startY + 20);
       this.player._pendingTexKey = texKey;
     }
     this.playerDir = 'down';
-    this.playerLabel = this.add.text(W/2, H-170, gameState.user?.username||'', {
-      fontSize:'11px',fontFamily:'Courier New',color:'#fff',stroke:'#000',strokeThickness:3
+    this.playerLabel = this.add.text(startX, startY - 38, gameState.user?.username || '', {
+      fontSize: '11px', fontFamily: 'Courier New', color: '#fff', stroke: '#000', strokeThickness: 3
     }).setOrigin(0.5).setDepth(10001);
 
     this.otherPlayers = {};
@@ -2781,6 +2924,9 @@ class PlotScene extends Phaser.Scene {
     this.wasMoving = false;
     this.placementGhost = null;
 
+    // Store house bounds for collision
+    this._houseBounds = { x: houseX, y: houseY, w: houseW, h: houseH, doorStart: doorGapStart, doorEnd: doorGapEnd };
+
     // Camera follows
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
 
@@ -2789,9 +2935,8 @@ class PlotScene extends Phaser.Scene {
       if (!gameState.isOwner || !gameState.currentPlotData) return;
       const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
 
-      // Remove mode: left-click or right-click removes nearest item
       if (gameState.removeMode || pointer.rightButtonDown()) {
-        let closestId = null, closestDist = 40; // 40px detection radius
+        let closestId = null, closestDist = 40;
         for (const [itemId, obj] of Object.entries(this.placedItems)) {
           const dist = Phaser.Math.Distance.Between(worldPoint.x, worldPoint.y, obj.sprite.x, obj.sprite.y);
           if (dist < closestDist) { closestDist = dist; closestId = itemId; }
@@ -2802,7 +2947,6 @@ class PlotScene extends Phaser.Scene {
         return;
       }
 
-      // Decorate mode: place item
       if (gameState.decorateMode && gameState.selectedItem) {
         const item = {
           type: gameState.selectedItem.type,
@@ -2825,6 +2969,7 @@ class PlotScene extends Phaser.Scene {
 
   update(time) {
     if (!this.player) return;
+    const W = 1376, H = 752;
     let dx = 0, dy = 0;
     if (this.cursors.left.isDown || this.wasd.A.isDown) dx = -this.moveSpeed;
     if (this.cursors.right.isDown || this.wasd.D.isDown) dx = this.moveSpeed;
@@ -2835,12 +2980,51 @@ class PlotScene extends Phaser.Scene {
     const isMoving = dx !== 0 || dy !== 0;
 
     if (isMoving) {
-      this.player.x = Phaser.Math.Clamp(this.player.x + dx, 50, 910);
-      this.player.y = Phaser.Math.Clamp(this.player.y + dy, 50, 670);
-      this.player.setDepth(this.player.y + 10000);
+      let newX = Phaser.Math.Clamp(this.player.x + dx, 50, W - 50);
+      let newY = Phaser.Math.Clamp(this.player.y + dy, 50, H - 50);
+
+      // House wall collision - player can enter through door
+      const hb = this._houseBounds;
+      if (hb) {
+        const inHouseX = newX > hb.x + 32 && newX < hb.x + hb.w - 32;
+        const atFrontWall = newY < hb.y + hb.h && newY > hb.y + hb.h - 40;
+        const inDoorGap = newX > hb.doorStart && newX < hb.doorEnd;
+
+        // Block entry through walls (not door)
+        if (inHouseX && atFrontWall && !inDoorGap) {
+          // Player is at front wall but not in door - block
+          if (this.player.y >= hb.y + hb.h) {
+            newY = Math.max(newY, hb.y + hb.h);
+          } else {
+            newY = Math.min(newY, hb.y + hb.h - 40);
+          }
+        }
+
+        // Inside house bounds
+        if (newX > hb.x && newX < hb.x + hb.w && newY > hb.y && newY < hb.y + hb.h) {
+          // Clamp to inside walls
+          newX = Phaser.Math.Clamp(newX, hb.x + 40, hb.x + hb.w - 40);
+          newY = Phaser.Math.Clamp(newY, hb.y + 50, hb.y + hb.h - 10);
+        }
+
+        // Block side wall entry
+        const wasInsideX = this.player.x > hb.x + 32 && this.player.x < hb.x + hb.w - 32;
+        const wasInsideY = this.player.y > hb.y && this.player.y < hb.y + hb.h;
+        if (!wasInsideX && newY > hb.y && newY < hb.y + hb.h) {
+          if (newX > hb.x && newX < hb.x + 40) newX = hb.x;
+          if (newX > hb.x + hb.w - 40 && newX < hb.x + hb.w) newX = hb.x + hb.w;
+        }
+        if (!wasInsideY && newX > hb.x + 32 && newX < hb.x + hb.w - 32) {
+          if (newY > hb.y && newY < hb.y + 40 && !(newX > hb.doorStart && newX < hb.doorEnd)) newY = hb.y;
+        }
+      }
+
+      this.player.x = newX;
+      this.player.y = newY;
+      this.player.setDepth(this.player.y + this.player.displayHeight / 2);
       this.playerLabel.setPosition(this.player.x, this.player.y - 38);
+      this.playerLabel.setDepth(this.player.depth + 1);
       if (time - this.moveTimer > 50) { this.moveTimer = time; socket.emit('move', { x: this.player.x, y: this.player.y }); }
-      // Determine facing direction
       let newDir = this.playerDir;
       if (Math.abs(dx) >= Math.abs(dy)) {
         newDir = dx < 0 ? 'left' : 'right';
@@ -2860,8 +3044,8 @@ class PlotScene extends Phaser.Scene {
 
     if (this.exitDoor) {
       const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.exitDoor.x, this.exitDoor.y);
-      this.exitDoor[dist<50?'setTint':'clearTint'](0xff8888);
-      this.exitLabel.setAlpha(dist<120?1:0);
+      this.exitDoor[dist < 50 ? 'setTint' : 'clearTint'](0xff8888);
+      this.exitLabel.setAlpha(dist < 120 ? 1 : 0);
     }
 
     // Placement ghost
@@ -2892,11 +3076,11 @@ class PlotScene extends Phaser.Scene {
 
   addPlacedItem(item) {
     if (this.placedItems[item.id]) return;
-    const sprite = this.add.image(item.x, item.y, item.type).setDepth(item.y);
+    const sprite = this.add.image(item.x, item.y, item.type).setDepth(item.y + 10);
     this.placedItems[item.id] = { sprite, data: item };
   }
   removePlacedItem(itemId) { if (this.placedItems[itemId]) { this.placedItems[itemId].sprite.destroy(); delete this.placedItems[itemId]; } }
-  movePlacedItem(itemId, x, y) { if (this.placedItems[itemId]) { this.placedItems[itemId].sprite.setPosition(x,y).setDepth(y); } }
+  movePlacedItem(itemId, x, y) { if (this.placedItems[itemId]) { this.placedItems[itemId].sprite.setPosition(x, y).setDepth(y + 10); } }
 
   addOtherPlayer(data) {
     if (this.otherPlayers[data.id]) { this.otherPlayers[data.id].sprite.setPosition(data.x,data.y); this.otherPlayers[data.id].label.setPosition(data.x,data.y-50); return; }
@@ -3112,7 +3296,7 @@ socket.on('loginStatus', (msg) => {
 });
 
 document.getElementById('chat-send').addEventListener('click', sendChat);
-document.getElementById('chat-input').addEventListener('keydown', (e) => { if (e.key==='Enter') sendChat(); e.stopPropagation(); });
+document.getElementById('chat-input').addEventListener('keydown', (e) => { if (e.key==='Enter') sendChat(); if (e.key==='Escape') { e.target.blur(); } e.stopPropagation(); });
 document.getElementById('chat-input').addEventListener('keyup', (e) => e.stopPropagation());
 document.getElementById('chat-input').addEventListener('keypress', (e) => e.stopPropagation());
 function sendChat() { const input = document.getElementById('chat-input'); const t = input.value.trim(); if (t) { socket.emit('chat', { text: t }); input.value = ''; } }
