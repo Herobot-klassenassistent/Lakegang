@@ -2057,7 +2057,7 @@ class MarketplaceScene extends Phaser.Scene {
 
       this.player.x = newX;
       this.player.y = newY;
-      this.player.setDepth(this.player.y);
+      this.player.setDepth(this.player.y + this.player.displayHeight / 2);
       this.playerLabel.setPosition(this.player.x, this.player.y - 38);
       if (time - this.moveTimer > 50) {
         this.moveTimer = time;
@@ -2178,8 +2178,8 @@ class MarketplaceScene extends Phaser.Scene {
       }
       op.sprite._lastX = x;
       op.sprite._lastY = y;
-      op.sprite.setPosition(x, y).setDepth(y);
-      op.label.setPosition(x, y - 38).setDepth(y + 1);
+      op.sprite.setPosition(x, y).setDepth(y + op.sprite.displayHeight / 2);
+      op.label.setPosition(x, y - 38).setDepth(y + op.sprite.displayHeight / 2 + 1);
     }
   }
   showChatBubble(username, text) {
@@ -2292,7 +2292,8 @@ class DesertScene extends Phaser.Scene {
     ];
     for (const item of desertItems) {
       if (this.textures.exists(item.key)) {
-        this.add.image(item.x, item.y, item.key).setScale(0.5).setDepth(item.y);
+        const dimg = this.add.image(item.x, item.y, item.key).setScale(0.5);
+        dimg.setDepth(item.y + dimg.displayHeight / 2);
       }
     }
 
@@ -2366,7 +2367,7 @@ class DesertScene extends Phaser.Scene {
 
       this.player.x = newX;
       this.player.y = newY;
-      this.player.setDepth(this.player.y);
+      this.player.setDepth(this.player.y + this.player.displayHeight / 2);
       this.playerLabel.setPosition(this.player.x, this.player.y - 38);
       if (time - this.moveTimer > 50) {
         this.moveTimer = time;
@@ -2428,8 +2429,8 @@ class DesertScene extends Phaser.Scene {
     if (op) {
       const dir = x < op.sprite.x ? 'left' : x > op.sprite.x ? 'right' : y < op.sprite.y ? 'up' : 'down';
       if (op.sprite._texKey && this.textures.exists(op.sprite._texKey)) op.sprite.play(op.sprite._texKey + '_walk_' + dir, true);
-      op.sprite.setPosition(x, y).setDepth(y);
-      op.label.setPosition(x, y - 38).setDepth(y + 1);
+      op.sprite.setPosition(x, y).setDepth(y + op.sprite.displayHeight / 2);
+      op.label.setPosition(x, y - 38).setDepth(y + op.sprite.displayHeight / 2 + 1);
     }
   }
   showChatBubble(username, text) {
@@ -2534,7 +2535,8 @@ class CityScene extends Phaser.Scene {
     // Render all city decoration items with y-depth sorting
     for (const item of cityItems) {
       if (this.textures.exists(item.key)) {
-        this.add.image(item.x, item.y, item.key).setScale(0.5).setDepth(item.y);
+        const cimg = this.add.image(item.x, item.y, item.key).setScale(0.5);
+        cimg.setDepth(item.y + cimg.displayHeight / 2);
       }
     }
 
@@ -2609,7 +2611,7 @@ class CityScene extends Phaser.Scene {
 
       this.player.x = newX;
       this.player.y = newY;
-      this.player.setDepth(this.player.y);
+      this.player.setDepth(this.player.y + this.player.displayHeight / 2);
       this.playerLabel.setPosition(this.player.x, this.player.y - 38);
       if (time - this.moveTimer > 50) {
         this.moveTimer = time;
@@ -2671,8 +2673,8 @@ class CityScene extends Phaser.Scene {
     if (op) {
       const dir = x < op.sprite.x ? 'left' : x > op.sprite.x ? 'right' : y < op.sprite.y ? 'up' : 'down';
       if (op.sprite._texKey && this.textures.exists(op.sprite._texKey)) op.sprite.play(op.sprite._texKey + '_walk_' + dir, true);
-      op.sprite.setPosition(x, y).setDepth(y);
-      op.label.setPosition(x, y - 38).setDepth(y + 1);
+      op.sprite.setPosition(x, y).setDepth(y + op.sprite.displayHeight / 2);
+      op.label.setPosition(x, y - 38).setDepth(y + op.sprite.displayHeight / 2 + 1);
     }
   }
   showChatBubble(username, text) {
@@ -2947,8 +2949,8 @@ class PlotScene extends Phaser.Scene {
       }
       op.sprite._lastX = x;
       op.sprite._lastY = y;
-      op.sprite.setPosition(x, y).setDepth(y);
-      op.label.setPosition(x, y - 38).setDepth(y + 1);
+      op.sprite.setPosition(x, y).setDepth(y + op.sprite.displayHeight / 2);
+      op.label.setPosition(x, y - 38).setDepth(y + op.sprite.displayHeight / 2 + 1);
     }
   }
   showChatBubble(username, text) {
