@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Desert Scene Editor - Lakegang</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; }
+  #toolbar {
+    position: fixed; top: 0; left: 0; right: 0; height: 44px; background: #16213e;
+    display: flex; align-items: center; padding: 0 12px; gap: 10px; z-index: 100;
+    border-bottom: 2px solid #0f3460;
+  }
+  #toolbar button {
+    background: #0f3460; color: #e0e0e0; border: 1px solid #1a5276; padding: 6px 14px;
+    cursor: pointer; font-family: inherit; font-size: 12px; border-radius: 4px;
+  }
+  #toolbar button:hover { background: #1a5276; }
+  #toolbar button.active { background: #e94560; border-color: #e94560; }
+  #toolbar .sep { width: 1px; height: 28px; background: #333; }
+  #toolbar #coords { color: #aaa; font-size: 11px; min-width: 130px; }
+  #toolbar #selected-info { color: #53d769; font-size: 11px; flex: 1; }
+
+  #canvas-wrap {
+    position: fixed; top: 44px; left: 0; right: 260px; bottom: 0; overflow: auto;
+    background: #111; cursor: crosshair;
+  }
+  #canvas-wrap canvas { display: block; }
+
+  #palette {
+    position: fixed; top: 44px; right: 0; width: 260px; bottom: 0;
+    background: #16213e; overflow-y: auto; border-left: 2px solid #0f3460;
+    padding: 8px;
+  }
+  #palette h3 { font-size: 12px; color: #e94560; margin: 10px 0 6px 0; }
+  #palette h3:first-child { margin-top: 0; }
+  .palette-item {
+    display: inline-block; margin: 3px; padding: 4px; background: #0f3460;
+    border: 1px solid #1a5276; border-radius: 4px; cursor: grab; text-align: center;
+    vertical-align: top;
+  }
+  .palette-item:hover { border-color: #53d769; }
+  .palette-item img { max-width: 56px; max-height: 56px; display: block; margin: 0 auto; image-rendering: pixelated; }
+  .palette-item span { font-size: 9px; color: #aaa; display: block; margin-top: 2px; max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  #export-modal {
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center;
+  }
+  #export-modal.show { display: flex; }
+  #export-modal textarea {
+    width: 80%; height: 70%; background: #1a1a2e; color: #53d769; border: 2px solid #0f3460;
+    font-family: 'Courier New', monospace; font-size: 11px; padding: 12px; resize: none;
+  }
+  #export-modal button {
+    position: absolute; top: 20px; right: 20px; background: #e94560; color: #fff;
+    border: none; padding: 8px 16px; cursor: pointer; font-family: inherit; border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <button id="btn-export">Export Code</button>
+  <div class="sep"></div>
+  <button id="btn-undo">Undo</button>
+  <button id="btn-remove-mode">Remove Mode</button>
+  <div class="sep"></div>
+  <span id="coords">x: 0, y: 0</span>
+  <span id="selected-info">Click an item to select, drag to move. Right-click to remove.</span>
+</div>
+
+<div id="canvas-wrap">
+  <canvas id="editor-canvas" width="1376" height="752"></canvas>
+</div>
+
+<div id="palette">
+  <!-- Filled by JS -->
+</div>
+
+<div id="export-modal">
+  <textarea id="export-text" readonly></textarea>
+  <button id="btn-close-export">Close</button>
+</div>
+
+<script>
+const W = 1376, H = 752;
+const ITEM_SCALE = 0.5;
+const canvas = document.getElementById('editor-canvas');
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+// All available desert assets organized by category
+const ASSET_CATEGORIES = {
+  'Cacti': [
+    { key: 'desert_cacti_', src: '/assets/desert/cacti_.png' },
+    { key: 'desert_cacti_1', src: '/assets/desert/cacti_1.png' },
+    { key: 'desert_cacti_3', src: '/assets/desert/cacti_3.png' },
+    { key: 'desert_cacti_4', src: '/assets/desert/cacti_4.png' },
+    { key: 'desert_cacti_5', src: '/assets/desert/cacti_5.png' },
+    { key: 'desert_cacti_6', src: '/assets/desert/cacti_6.png' },
+    { key: 'desert_cacti_7', src: '/assets/desert/cacti_7.png' },
+    { key: 'desert_cacti_8', src: '/assets/desert/cacti_8.png' },
+    { key: 'desert_cacti_9', src: '/assets/desert/cacti_9.png' },
+    { key: 'desert_cacti_10', src: '/assets/desert/cacti_10.png' },
+  ],
+  'Desert Foliage': [
+    { key: 'desert_desertfoliage_1', src: '/assets/desert/desertfoliage_1.png' },
+    { key: 'desert_desertfoliage_2', src: '/assets/desert/desertfoliage_2.png' },
+    { key: 'desert_desertfoliage_3', src: '/assets/desert/desertfoliage_3.png' },
+    { key: 'desert_desertfoliage_4', src: '/assets/desert/desertfoliage_4.png' },
+    { key: 'desert_desertfoliage_5', src: '/assets/desert/desertfoliage_5.png' },
+    { key: 'desert_desertfoliage_6', src: '/assets/desert/desertfoliage_6.png' },
+    { key: 'desert_desertfoliage_7', src: '/assets/desert/desertfoliage_7.png' },
+    { key: 'desert_desertfoliage_8', src: '/assets/desert/desertfoliage_8.png' },
+    { key: 'desert_desertfoliage_9', src: '/assets/desert/desertfoliage_9.png' },
+    { key: 'desert_desertfoliage_10', src: '/assets/desert/desertfoliage_10.png' },
+    { key: 'desert_desertfoliage_11', src: '/assets/desert/desertfoliage_11.png' },
+    { key: 'desert_desertfoliage_12', src: '/assets/desert/desertfoliage_12.png' },
+    { key: 'desert_desertfoliage_13', src: '/assets/desert/desertfoliage_13.png' },
+    { key: 'desert_desertfoliage_14', src: '/assets/desert/desertfoliage_14.png' },
+    { key: 'desert_desertfoliage_15', src: '/assets/desert/desertfoliage_15.png' },
+  ],
+  'Desert Rocks': [
+    { key: 'desert_desertrocks_', src: '/assets/desert/desertrocks_.png' },
+    { key: 'desert_desertrocks_1', src: '/assets/desert/desertrocks_1.png' },
+    { key: 'desert_desertrocks_3', src: '/assets/desert/desertrocks_3.png' },
+    { key: 'desert_desertrocks_4', src: '/assets/desert/desertrocks_4.png' },
+    { key: 'desert_desertrocks_5', src: '/assets/desert/desertrocks_5.png' },
+    { key: 'desert_desertrocks_6', src: '/assets/desert/desertrocks_6.png' },
+    { key: 'desert_desertrocks_7', src: '/assets/desert/desertrocks_7.png' },
+    { key: 'desert_desertrocks_8', src: '/assets/desert/desertrocks_8.png' },
+  ],
+};
+
+// Starting layout - spread items across the desert
+let items = [
+  // Large cacti scattered around
+  { key: 'desert_cacti_', x: 120, y: 150 },
+  { key: 'desert_cacti_1', x: 350, y: 80 },
+  { key: 'desert_cacti_3', x: 600, y: 120 },
+  { key: 'desert_cacti_4', x: 900, y: 90 },
+  { key: 'desert_cacti_5', x: 1150, y: 140 },
+  { key: 'desert_cacti_6', x: 200, y: 400 },
+  { key: 'desert_cacti_7', x: 80, y: 600 },
+  { key: 'desert_cacti_8', x: 450, y: 650 },
+  { key: 'desert_cacti_9', x: 750, y: 680 },
+  { key: 'desert_cacti_10', x: 1050, y: 620 },
+  { key: 'desert_cacti_', x: 1250, y: 350 },
+  { key: 'desert_cacti_1', x: 1300, y: 550 },
+  { key: 'desert_cacti_3', x: 500, y: 350 },
+  { key: 'desert_cacti_5', x: 850, y: 400 },
+
+  // Rock formations
+  { key: 'desert_desertrocks_', x: 250, y: 250 },
+  { key: 'desert_desertrocks_1', x: 700, y: 300 },
+  { key: 'desert_desertrocks_3', x: 1100, y: 250 },
+  { key: 'desert_desertrocks_4', x: 150, y: 500 },
+  { key: 'desert_desertrocks_5', x: 550, y: 500 },
+  { key: 'desert_desertrocks_6', x: 950, y: 480 },
+  { key: 'desert_desertrocks_7', x: 1200, y: 650 },
+  { key: 'desert_desertrocks_8', x: 400, y: 200 },
+
+  // Desert foliage - tumbleweeds, dry bushes, etc.
+  { key: 'desert_desertfoliage_1', x: 180, y: 300 },
+  { key: 'desert_desertfoliage_2', x: 320, y: 450 },
+  { key: 'desert_desertfoliage_3', x: 480, y: 180 },
+  { key: 'desert_desertfoliage_4', x: 650, y: 550 },
+  { key: 'desert_desertfoliage_5', x: 800, y: 200 },
+  { key: 'desert_desertfoliage_6', x: 1000, y: 350 },
+  { key: 'desert_desertfoliage_7', x: 1150, y: 500 },
+  { key: 'desert_desertfoliage_8', x: 100, y: 700 },
+  { key: 'desert_desertfoliage_9', x: 300, y: 600 },
+  { key: 'desert_desertfoliage_10', x: 600, y: 450 },
+  { key: 'desert_desertfoliage_11', x: 750, y: 100 },
+  { key: 'desert_desertfoliage_12', x: 1050, y: 150 },
+  { key: 'desert_desertfoliage_13', x: 1300, y: 200 },
+  { key: 'desert_desertfoliage_14', x: 200, y: 680 },
+  { key: 'desert_desertfoliage_15', x: 900, y: 600 },
+];
+
+// Image cache
+const imageCache = {};
+let loadedCount = 0;
+let totalToLoad = 0;
+
+function loadImage(src) {
+  return new Promise((resolve) => {
+    if (imageCache[src]) { resolve(imageCache[src]); return; }
+    const img = new Image();
+    img.onload = () => { imageCache[src] = img; loadedCount++; resolve(img); };
+    img.onerror = () => { loadedCount++; resolve(null); };
+    img.src = src;
+  });
+}
+
+// Find asset src by key
+function getSrc(key) {
+  for (const cat of Object.values(ASSET_CATEGORIES)) {
+    for (const a of cat) {
+      if (a.key === key) return a.src;
+    }
+  }
+  return null;
+}
+
+// State
+let selectedIdx = -1;
+let dragging = false;
+let dragOffsetX = 0, dragOffsetY = 0;
+let removeMode = false;
+let undoStack = [];
+let bgImage = null;
+
+function saveUndo() {
+  undoStack.push(JSON.parse(JSON.stringify(items)));
+  if (undoStack.length > 50) undoStack.shift();
+}
+
+function undo() {
+  if (undoStack.length > 0) {
+    items = undoStack.pop();
+    selectedIdx = -1;
+    render();
+  }
+}
+
+// Get item bounds (centered like Phaser)
+function getItemBounds(item) {
+  const src = getSrc(item.key);
+  const img = src ? imageCache[src] : null;
+  if (!img) return { x: item.x - 20, y: item.y - 20, w: 40, h: 40 };
+  const sw = img.width * ITEM_SCALE, sh = img.height * ITEM_SCALE;
+  return { x: item.x - sw / 2, y: item.y - sh / 2, w: sw, h: sh };
+}
+
+function hitTest(mx, my) {
+  for (let i = items.length - 1; i >= 0; i--) {
+    const b = getItemBounds(items[i]);
+    if (mx >= b.x && mx <= b.x + b.w && my >= b.y && my <= b.y + b.h) {
+      const src = getSrc(items[i].key);
+      const img = src ? imageCache[src] : null;
+      if (img) {
+        const tmpC = document.createElement('canvas');
+        tmpC.width = img.width; tmpC.height = img.height;
+        const tmpCtx = tmpC.getContext('2d');
+        tmpCtx.drawImage(img, 0, 0);
+        const px = Math.floor((mx - b.x) / ITEM_SCALE);
+        const py = Math.floor((my - b.y) / ITEM_SCALE);
+        if (px >= 0 && px < img.width && py >= 0 && py < img.height) {
+          const pixel = tmpCtx.getImageData(px, py, 1, 1).data;
+          if (pixel[3] > 30) return i;
+        }
+      } else {
+        return i;
+      }
+    }
+  }
+  return -1;
+}
+
+function render() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Draw background
+  if (bgImage) ctx.drawImage(bgImage, 0, 0, W, H);
+
+  // Sort items by y for depth
+  const sortedIndices = items.map((_, i) => i).sort((a, b) => items[a].y - items[b].y);
+
+  for (const i of sortedIndices) {
+    const item = items[i];
+    const src = getSrc(item.key);
+    const img = src ? imageCache[src] : null;
+
+    if (img) {
+      const sw = img.width * ITEM_SCALE, sh = img.height * ITEM_SCALE;
+      const dx = item.x - sw / 2;
+      const dy = item.y - sh / 2;
+
+      // Highlight selected
+      if (i === selectedIdx) {
+        ctx.strokeStyle = '#53d769';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(dx - 2, dy - 2, sw + 4, sh + 4);
+      }
+
+      ctx.drawImage(img, dx, dy, sw, sh);
+    } else {
+      ctx.fillStyle = '#e94560';
+      ctx.fillRect(item.x - 10, item.y - 10, 20, 20);
+      ctx.fillStyle = '#fff';
+      ctx.font = '8px monospace';
+      ctx.fillText('?', item.x - 3, item.y + 3);
+    }
+  }
+
+  // Update info
+  const info = document.getElementById('selected-info');
+  if (selectedIdx >= 0 && selectedIdx < items.length) {
+    const item = items[selectedIdx];
+    info.textContent = `Selected: ${item.key} at (${item.x}, ${item.y}) | Drag to move, Right-click or Delete to remove`;
+    info.style.color = '#53d769';
+  } else {
+    info.textContent = 'Click an item to select, drag to move. Right-click to remove. Click palette to add.';
+    info.style.color = '#aaa';
+  }
+}
+
+// Mouse events
+canvas.addEventListener('mousedown', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.offsetX / rect.width) * W;
+  const my = (e.offsetY / rect.height) * H;
+
+  if (e.button === 2) {
+    const idx = hitTest(mx, my);
+    if (idx >= 0) {
+      saveUndo();
+      items.splice(idx, 1);
+      if (selectedIdx === idx) selectedIdx = -1;
+      else if (selectedIdx > idx) selectedIdx--;
+      render();
+    }
+    return;
+  }
+
+  if (removeMode) {
+    const idx = hitTest(mx, my);
+    if (idx >= 0) {
+      saveUndo();
+      items.splice(idx, 1);
+      if (selectedIdx === idx) selectedIdx = -1;
+      else if (selectedIdx > idx) selectedIdx--;
+      render();
+    }
+    return;
+  }
+
+  const idx = hitTest(mx, my);
+  if (idx >= 0) {
+    selectedIdx = idx;
+    dragging = true;
+    dragOffsetX = mx - items[idx].x;
+    dragOffsetY = my - items[idx].y;
+    saveUndo();
+    render();
+  } else {
+    selectedIdx = -1;
+    render();
+  }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.offsetX / rect.width) * W;
+  const my = (e.offsetY / rect.height) * H;
+
+  document.getElementById('coords').textContent = `x: ${Math.round(mx)}, y: ${Math.round(my)}`;
+
+  if (dragging && selectedIdx >= 0) {
+    items[selectedIdx].x = Math.round(mx - dragOffsetX);
+    items[selectedIdx].y = Math.round(my - dragOffsetY);
+    render();
+  }
+});
+
+canvas.addEventListener('mouseup', () => { dragging = false; });
+canvas.addEventListener('mouseleave', () => { dragging = false; });
+canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+// Keyboard
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Delete' || e.key === 'Backspace') {
+    if (selectedIdx >= 0 && selectedIdx < items.length) {
+      saveUndo();
+      items.splice(selectedIdx, 1);
+      selectedIdx = -1;
+      render();
+    }
+  }
+  if (e.key === 'z' && (e.ctrlKey || e.metaKey)) { undo(); }
+  // Arrow nudge
+  if (selectedIdx >= 0) {
+    const step = e.shiftKey ? 10 : 1;
+    if (e.key === 'ArrowLeft') { saveUndo(); items[selectedIdx].x -= step; render(); }
+    if (e.key === 'ArrowRight') { saveUndo(); items[selectedIdx].x += step; render(); }
+    if (e.key === 'ArrowUp') { saveUndo(); items[selectedIdx].y -= step; render(); }
+    if (e.key === 'ArrowDown') { saveUndo(); items[selectedIdx].y += step; render(); }
+  }
+});
+
+// Toolbar buttons
+document.getElementById('btn-undo').addEventListener('click', undo);
+
+document.getElementById('btn-remove-mode').addEventListener('click', function() {
+  removeMode = !removeMode;
+  this.classList.toggle('active', removeMode);
+  this.textContent = removeMode ? 'Stop Removing' : 'Remove Mode';
+  canvas.style.cursor = removeMode ? 'not-allowed' : 'crosshair';
+});
+
+document.getElementById('btn-export').addEventListener('click', () => {
+  let code = '    const desertItems = [\n';
+  for (const item of items) {
+    code += `      { key: '${item.key}', x: ${item.x}, y: ${item.y} },\n`;
+  }
+  code += '    ];\n';
+  code += '    for (const item of desertItems) {\n';
+  code += '      if (this.textures.exists(item.key)) {\n';
+  code += '        this.add.image(item.x, item.y, item.key).setScale(0.5).setDepth(item.y);\n';
+  code += '      }\n';
+  code += '    }\n';
+  document.getElementById('export-text').value = code;
+  document.getElementById('export-modal').classList.add('show');
+});
+
+document.getElementById('btn-close-export').addEventListener('click', () => {
+  document.getElementById('export-modal').classList.remove('show');
+});
+
+// Build palette
+const palette = document.getElementById('palette');
+for (const [catName, assets] of Object.entries(ASSET_CATEGORIES)) {
+  const h3 = document.createElement('h3');
+  h3.textContent = catName;
+  palette.appendChild(h3);
+
+  for (const asset of assets) {
+    const div = document.createElement('div');
+    div.className = 'palette-item';
+    div.title = asset.key;
+    div.innerHTML = `<img src="${asset.src}"><span>${asset.key.replace('desert_','')}</span>`;
+    div.addEventListener('click', () => {
+      saveUndo();
+      items.push({ key: asset.key, x: W / 2, y: H / 2 });
+      selectedIdx = items.length - 1;
+      render();
+    });
+    palette.appendChild(div);
+  }
+}
+
+// Load everything and start
+async function init() {
+  bgImage = await new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.src = '/assets/DESERT background,jpg.jpeg';
+  });
+
+  const allSrcs = new Set();
+  for (const cat of Object.values(ASSET_CATEGORIES)) {
+    for (const a of cat) allSrcs.add(a.src);
+  }
+  totalToLoad = allSrcs.size;
+  await Promise.all([...allSrcs].map(src => loadImage(src)));
+  console.log(`Loaded ${loadedCount}/${totalToLoad} desert assets`);
+
+  render();
+}
+
+init();
+</script>
+</body>
+</html>

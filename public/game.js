@@ -700,19 +700,27 @@ const DESERT_ASSETS = [
 
 // City environment assets
 const CITY_ASSETS = [
-  'bench1hor', 'bench1vert', 'bench2hor', 'bench2vert', 'benchesXL',
-  'crane', 'crate', 'crate1', 'crate2', 'crate4', 'crate5',
+  'bench1hor', 'bench1vert', 'bench2diag', 'bench2diag2', 'bench2hor', 'bench2vert', 'benchesXL',
+  'crane', 'crate', 'crate1', 'crate2', 'crate4', 'crate5', 'crate6',
   'directions', 'dumpster', 'dumpster2',
-  'garbagebin', 'garbagebin2', 'garbagebin3',
+  'garbagebin', 'garbagebin2', 'garbagebin3', 'garbagebin4', 'garbagebin5',
   'greenery_decor_1', 'greenery_decor_2', 'greenery_decor_3', 'greenery_decor_4', 'greenery_decor_5',
   'greenery_decor_6', 'greenery_decor_7', 'greenery_decor_13', 'greenery_decor_18', 'greenery_decor_19',
   'greenery_decor_20', 'greenery_decor_21', 'greenery_decor_22',
+  'greenery_decor_110', 'greenery_decor_111', 'greenery_decor_112',
+  'greenery_decor_114', 'greenery_decor_115', 'greenery_decor_116', 'greenery_decor_117', 'greenery_decor_118',
   'lamppost', 'lamppost2',
   'metalstructure', 'metalstructure1', 'metalstructure2', 'metalstructure3', 'metalstructure4', 'metalstructure5',
+  'metalstructure6', 'metalstructure7', 'metalstructure8', 'metalstructure9',
+  'metalstructure10', 'metalstructure11', 'metalstructure12', 'metalstructure13', 'metalstructure14', 'metalstructure15',
   'post_flowers', 'post_flowers2', 'post_flowers3',
   'smallpillar', 'smallpillardark',
   'trafficsign_1', 'trafficsign_2', 'trafficsign_3', 'trafficsign_4', 'trafficsign_5',
+  'trafficsign_6', 'trafficsign_7', 'trafficsign_8', 'trafficsign_9', 'trafficsign_10',
   'waterfountain',
+  'city_decorations_final_sprites_0028_Layer-89',
+  'city_decorations_final_sprites_0029_Layer-95',
+  'city_decorations_final_sprites_0053_Layer-52-copy',
 ];
 
 // ============================================================
@@ -732,6 +740,119 @@ function shade(hex, amt) {
 function tint(hex, amt) {
   const c = hexToRgb(hex);
   return rgbToHex(c.r+(255-c.r)*amt, c.g+(255-c.g)*amt, c.b+(255-c.b)*amt);
+}
+
+// ============================================================
+// FOREGROUND DEPTH SYSTEM
+// Splits a foreground PNG into horizontal strips for y-depth sorting
+// and generates collision map from the bottom edges of objects
+// ============================================================
+function buildForegroundStrips(scene, texKey, W, H) {
+  if (!scene.textures.exists(texKey)) return { collisionRects: [] };
+
+  const STRIP_H = 8; // Height of each strip in pixels
+  const source = scene.textures.get(texKey).getSourceImage();
+
+  // Draw to a temporary canvas to read pixel data
+  const tmpCanvas = document.createElement('canvas');
+  tmpCanvas.width = W; tmpCanvas.height = H;
+  const ctx = tmpCanvas.getContext('2d');
+  ctx.drawImage(source, 0, 0, W, H);
+  const imgData = ctx.getImageData(0, 0, W, H);
+  const pixels = imgData.data; // RGBA flat array
+
+  // Build strips — each strip is a horizontal slice rendered at depth = y
+  for (let sy = 0; sy < H; sy += STRIP_H) {
+    const stripH = Math.min(STRIP_H, H - sy);
+
+    // Check if this strip has any visible pixels
+    let hasContent = false;
+    for (let py = sy; py < sy + stripH && !hasContent; py++) {
+      for (let px = 0; px < W; px++) {
+        if (pixels[(py * W + px) * 4 + 3] > 30) { hasContent = true; break; }
+      }
+    }
+    if (!hasContent) continue;
+
+    // Create a texture for this strip
+    const stripCanvas = document.createElement('canvas');
+    stripCanvas.width = W; stripCanvas.height = stripH;
+    const sctx = stripCanvas.getContext('2d');
+    sctx.drawImage(source, 0, sy, W, stripH, 0, 0, W, stripH);
+
+    const stripKey = texKey + '_strip_' + sy;
+    if (!scene.textures.exists(stripKey)) {
+      scene.textures.addCanvas(stripKey, stripCanvas);
+    }
+
+    // Render the strip at its y position with depth = y (bottom of strip)
+    scene.add.image(W / 2, sy + stripH / 2, stripKey)
+      .setDepth(sy + stripH);
+  }
+
+  // Build collision rectangles from the foreground alpha
+  // Scan columns to find the BOTTOM-MOST opaque pixel in each content region
+  // These become collision zones (the "feet" of trees/buildings)
+  const collisionRects = [];
+  const COLLISION_SCAN_W = 16; // Scan in 16px wide columns
+
+  for (let cx = 0; cx < W; cx += COLLISION_SCAN_W) {
+    let bottomMost = -1;
+    let topMost = H;
+    let colW = Math.min(COLLISION_SCAN_W, W - cx);
+
+    // Find the lowest opaque pixel in this column
+    for (let py = H - 1; py >= 0; py--) {
+      let hasOpaque = false;
+      for (let px = cx; px < cx + colW; px++) {
+        if (pixels[(py * W + px) * 4 + 3] > 100) { hasOpaque = true; break; }
+      }
+      if (hasOpaque) {
+        if (bottomMost < 0) bottomMost = py;
+        topMost = py;
+      } else if (bottomMost >= 0) {
+        // Gap found — this column segment ended
+        break;
+      }
+    }
+
+    if (bottomMost >= 0) {
+      // The collision zone is the bottom ~30% of the object in this column
+      const objHeight = bottomMost - topMost;
+      const collisionTop = bottomMost - Math.min(objHeight * 0.25, 30);
+      collisionRects.push({
+        x: cx, y: Math.round(collisionTop),
+        w: colW, h: Math.round(bottomMost - collisionTop)
+      });
+    }
+  }
+
+  // Merge adjacent collision rects with similar y ranges
+  const merged = [];
+  for (const rect of collisionRects) {
+    const last = merged[merged.length - 1];
+    if (last && Math.abs(last.y - rect.y) < 10 && Math.abs((last.y + last.h) - (rect.y + rect.h)) < 10 && (last.x + last.w) >= rect.x) {
+      // Merge
+      last.w = rect.x + rect.w - last.x;
+      last.y = Math.min(last.y, rect.y);
+      last.h = Math.max(last.y + last.h, rect.y + rect.h) - last.y;
+    } else {
+      merged.push({ ...rect });
+    }
+  }
+
+  return { collisionRects: merged };
+}
+
+// Check if a point collides with foreground collision rectangles
+function checkForegroundCollision(collisionRects, x, y, margin) {
+  margin = margin || 8;
+  for (const r of collisionRects) {
+    if (x > r.x - margin && x < r.x + r.w + margin && y > r.y - margin && y < r.y + r.h + margin) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // ============================================================
@@ -1494,16 +1615,22 @@ class BootScene extends Phaser.Scene {
       this.load.image('city_' + name, '/assets/city/' + name + '.png');
     }
 
+    // Load trees for city scene environment
+    const CITY_TREES = ['tree1', 'tree1b', 'tree1c', 'tree1d', 'tree1e', 'tree2', 'tree2b', 'tree2c', 'tree2d', 'tree5', 'tree5b', 'bush', 'bush1', 'bush2', 'bush4', 'bush5'];
+    for (const name of CITY_TREES) {
+      this.load.image('citytree_' + name, '/assets/trees/' + name + '.png');
+    }
+
     // Generate procedural tiles (still needed for PlotScene ground)
     this.generateMapTiles();
 
-    // Load marketplace background
+    // Load backgrounds + foreground overlays (transparent PNGs with treetops/rooftops)
+    // Foreground layers render ABOVE the player to create depth (walking behind trees/buildings)
     this.load.image('marketplace_bg', '/assets/BACKGROUND.jpg');
 
-    // Load city background
     this.load.image('city_bg', '/assets/City background.jpg');
+    this.load.image('city_fg', '/assets/City background_foreground.png');
 
-    // Load desert background
     this.load.image('desert_bg', '/assets/DESERT background,jpg.jpeg');
   }
 
@@ -1810,6 +1937,9 @@ class MarketplaceScene extends Phaser.Scene {
     // === BACKGROUND IMAGE ===
     this.add.image(W / 2, H / 2, 'marketplace_bg').setDepth(0);
 
+    // Foreground disabled for lake scene
+    this._fgCollision = [];
+
     // === SCENE TRANSITION LABELS ===
     this.leftLabel = this.add.text(30, H / 2, '< DESERT', {
       fontSize: '12px', fontFamily: 'Courier New', color: '#f0c060',
@@ -1837,10 +1967,10 @@ class MarketplaceScene extends Phaser.Scene {
     const startX = gameState.isInPlot ? 1030 : 688;
     const startY = gameState.isInPlot ? 380 : 480;
     if (this.textures.exists(texKey)) {
-      this.player = this.add.sprite(startX, startY, texKey).setScale(1.33).setDepth(10000);
+      this.player = this.add.sprite(startX, startY, texKey).setScale(1.33).setDepth(startY);
       this.player.play(texKey + '_idle_down');
     } else {
-      this.player = this.add.sprite(startX, startY, '__DEFAULT').setScale(1.33).setDepth(10000);
+      this.player = this.add.sprite(startX, startY, '__DEFAULT').setScale(1.33).setDepth(startY);
       this.player._pendingTexKey = texKey;
     }
     this.playerDir = 'down';
@@ -1911,9 +2041,23 @@ class MarketplaceScene extends Phaser.Scene {
         }
       }
 
+      // === FOREGROUND COLLISION ===
+      if (this._fgCollision && this._fgCollision.length > 0) {
+        if (checkForegroundCollision(this._fgCollision, newX, newY)) {
+          // Try sliding along one axis
+          if (!checkForegroundCollision(this._fgCollision, newX, this.player.y)) {
+            newY = this.player.y;
+          } else if (!checkForegroundCollision(this._fgCollision, this.player.x, newY)) {
+            newX = this.player.x;
+          } else {
+            newX = this.player.x; newY = this.player.y;
+          }
+        }
+      }
+
       this.player.x = newX;
       this.player.y = newY;
-      this.player.setDepth(this.player.y + 10000);
+      this.player.setDepth(this.player.y);
       this.playerLabel.setPosition(this.player.x, this.player.y - 38);
       if (time - this.moveTimer > 50) {
         this.moveTimer = time;
@@ -2102,6 +2246,55 @@ class DesertScene extends Phaser.Scene {
     // === DESERT BACKGROUND IMAGE ===
     this.add.image(W / 2, H / 2, 'desert_bg').setDepth(0);
 
+    // === DESERT DECORATION ITEMS ===
+    const desertItems = [
+      { key: 'desert_cacti_', x: 120, y: 150 },
+      { key: 'desert_cacti_1', x: 350, y: 80 },
+      { key: 'desert_cacti_3', x: 600, y: 120 },
+      { key: 'desert_cacti_4', x: 900, y: 90 },
+      { key: 'desert_cacti_5', x: 1150, y: 140 },
+      { key: 'desert_cacti_6', x: 200, y: 400 },
+      { key: 'desert_cacti_7', x: 80, y: 600 },
+      { key: 'desert_cacti_8', x: 450, y: 650 },
+      { key: 'desert_cacti_9', x: 750, y: 680 },
+      { key: 'desert_cacti_10', x: 1050, y: 620 },
+      { key: 'desert_cacti_', x: 1250, y: 350 },
+      { key: 'desert_cacti_1', x: 1300, y: 550 },
+      { key: 'desert_cacti_3', x: 500, y: 350 },
+      { key: 'desert_cacti_5', x: 850, y: 400 },
+      { key: 'desert_desertrocks_', x: 250, y: 250 },
+      { key: 'desert_desertrocks_1', x: 700, y: 300 },
+      { key: 'desert_desertrocks_3', x: 1100, y: 250 },
+      { key: 'desert_desertrocks_4', x: 150, y: 500 },
+      { key: 'desert_desertrocks_5', x: 550, y: 500 },
+      { key: 'desert_desertrocks_6', x: 950, y: 480 },
+      { key: 'desert_desertrocks_7', x: 1200, y: 650 },
+      { key: 'desert_desertrocks_8', x: 400, y: 200 },
+      { key: 'desert_desertfoliage_1', x: 180, y: 300 },
+      { key: 'desert_desertfoliage_2', x: 320, y: 450 },
+      { key: 'desert_desertfoliage_3', x: 480, y: 180 },
+      { key: 'desert_desertfoliage_4', x: 650, y: 550 },
+      { key: 'desert_desertfoliage_5', x: 800, y: 200 },
+      { key: 'desert_desertfoliage_6', x: 1000, y: 350 },
+      { key: 'desert_desertfoliage_7', x: 1150, y: 500 },
+      { key: 'desert_desertfoliage_8', x: 100, y: 700 },
+      { key: 'desert_desertfoliage_9', x: 300, y: 600 },
+      { key: 'desert_desertfoliage_10', x: 600, y: 450 },
+      { key: 'desert_desertfoliage_11', x: 750, y: 100 },
+      { key: 'desert_desertfoliage_12', x: 1050, y: 150 },
+      { key: 'desert_desertfoliage_13', x: 1300, y: 200 },
+      { key: 'desert_desertfoliage_14', x: 200, y: 680 },
+      { key: 'desert_desertfoliage_15', x: 900, y: 600 },
+    ];
+    for (const item of desertItems) {
+      if (this.textures.exists(item.key)) {
+        this.add.image(item.x, item.y, item.key).setScale(0.5).setDepth(item.y);
+      }
+    }
+
+    // Foreground disabled for desert scene
+    this._fgCollision = [];
+
     // Navigation labels
     this.rightLabel = this.add.text(W - 30, H / 2, 'LAKE >', {
       fontSize: '12px', fontFamily: 'Courier New', color: '#53d769',
@@ -2117,10 +2310,10 @@ class DesertScene extends Phaser.Scene {
     gameState._spawnX = null; gameState._spawnY = null;
 
     if (this.textures.exists(texKey)) {
-      this.player = this.add.sprite(startX, startY, texKey).setScale(1.33).setDepth(10000);
+      this.player = this.add.sprite(startX, startY, texKey).setScale(1.33).setDepth(startY);
       this.player.play(texKey + '_idle_down');
     } else {
-      this.player = this.add.sprite(startX, startY, '__DEFAULT').setScale(1.33).setDepth(10000);
+      this.player = this.add.sprite(startX, startY, '__DEFAULT').setScale(1.33).setDepth(startY);
       this.player._pendingTexKey = texKey;
     }
     this.playerDir = 'down';
@@ -2155,9 +2348,21 @@ class DesertScene extends Phaser.Scene {
 
     const isMoving = dx !== 0 || dy !== 0;
     if (isMoving) {
-      this.player.x = Phaser.Math.Clamp(this.player.x + dx, 20, 1356);
-      this.player.y = Phaser.Math.Clamp(this.player.y + dy, 20, 732);
-      this.player.setDepth(this.player.y + 10000);
+      let newX = Phaser.Math.Clamp(this.player.x + dx, 20, 1356);
+      let newY = Phaser.Math.Clamp(this.player.y + dy, 20, 732);
+
+      // === FOREGROUND COLLISION ===
+      if (this._fgCollision && this._fgCollision.length > 0) {
+        if (checkForegroundCollision(this._fgCollision, newX, newY)) {
+          if (!checkForegroundCollision(this._fgCollision, newX, this.player.y)) { newY = this.player.y; }
+          else if (!checkForegroundCollision(this._fgCollision, this.player.x, newY)) { newX = this.player.x; }
+          else { newX = this.player.x; newY = this.player.y; }
+        }
+      }
+
+      this.player.x = newX;
+      this.player.y = newY;
+      this.player.setDepth(this.player.y);
       this.playerLabel.setPosition(this.player.x, this.player.y - 38);
       if (time - this.moveTimer > 50) {
         this.moveTimer = time;
@@ -2255,6 +2460,84 @@ class CityScene extends Phaser.Scene {
     // === CITY BACKGROUND IMAGE ===
     this.add.image(W / 2, H / 2, 'city_bg').setDepth(0);
 
+    // === CITY ENVIRONMENT DECORATIONS ===
+    // Place assets on walkable areas: sidewalks, plazas, green patches, roadsides
+    // Referencing the background layout:
+    //   Center fountain plaza ~(688, 370)
+    //   Horizontal road ~y:270 (top) and ~y:520 (bottom)
+    //   Vertical road ~x:400 (left) and ~x:970 (right)
+    //   Green tree zones at corners and edges
+
+    const cityItems = [
+      { key: 'citytree_tree1c', x: 642, y: 43 },
+      { key: 'citytree_tree1d', x: 1349, y: 130 },
+      { key: 'citytree_bush4', x: 1174, y: 167 },
+      { key: 'citytree_tree1', x: 322, y: 111 },
+      { key: 'citytree_tree1c', x: 737, y: 109 },
+      { key: 'citytree_tree1d', x: 1341, y: 706 },
+      { key: 'citytree_tree2d', x: 1258, y: 722 },
+      { key: 'citytree_tree1b', x: 1364, y: 604 },
+      { key: 'citytree_bush5', x: 1290, y: 650 },
+      { key: 'citytree_bush1', x: 121, y: 341 },
+      { key: 'citytree_tree2b', x: 850, y: 38 },
+      { key: 'city_lamppost', x: 854, y: 193 },
+      { key: 'city_lamppost', x: 309, y: 537 },
+      { key: 'city_lamppost2', x: 726, y: 534 },
+      { key: 'city_lamppost', x: 831, y: 535 },
+      { key: 'city_lamppost', x: 370, y: 329 },
+      { key: 'city_lamppost2', x: 355, y: 450 },
+      { key: 'city_lamppost', x: 1000, y: 329 },
+      { key: 'city_greenery_decor_114', x: 600, y: 338 },
+      { key: 'city_greenery_decor_114', x: 762, y: 338 },
+      { key: 'city_greenery_decor_114', x: 790, y: 440 },
+      { key: 'city_greenery_decor_112', x: 885, y: 335 },
+      { key: 'city_greenery_decor_112', x: 856, y: 556 },
+      { key: 'city_greenery_decor_118', x: 1074, y: 280 },
+      { key: 'city_greenery_decor_117', x: 283, y: 427 },
+      { key: 'city_greenery_decor_116', x: 1115, y: 697 },
+      { key: 'city_greenery_decor_115', x: 506, y: 329 },
+      { key: 'city_greenery_decor_2', x: 440, y: 445 },
+      { key: 'city_greenery_decor_2', x: 1096, y: 400 },
+      { key: 'city_greenery_decor_1', x: 203, y: 161 },
+      { key: 'city_greenery_decor_3', x: 1191, y: 187 },
+      { key: 'city_greenery_decor_4', x: 211, y: 672 },
+      { key: 'city_greenery_decor_5', x: 1184, y: 701 },
+      { key: 'city_greenery_decor_7', x: 1225, y: 344 },
+      { key: 'city_post_flowers', x: 643, y: 273 },
+      { key: 'city_post_flowers3', x: 630, y: 522 },
+      { key: 'city_post_flowers', x: 796, y: 346 },
+      { key: 'city_bench2hor', x: 623, y: 447 },
+      { key: 'city_bench2hor', x: 741, y: 446 },
+      { key: 'city_bench2vert', x: 990, y: 290 },
+      { key: 'city_bench1vert', x: 390, y: 480 },
+      { key: 'city_bench2vert', x: 990, y: 480 },
+      { key: 'city_trafficsign_6', x: 475, y: 165 },
+      { key: 'city_trafficsign_7', x: 950, y: 250 },
+      { key: 'city_trafficsign_6', x: 430, y: 516 },
+      { key: 'city_trafficsign_7', x: 1043, y: 510 },
+      { key: 'city_directions', x: 21, y: 306 },
+      { key: 'city_garbagebin', x: 256, y: 120 },
+      { key: 'city_garbagebin2', x: 1166, y: 202 },
+      { key: 'city_garbagebin3', x: 449, y: 516 },
+      { key: 'city_garbagebin4', x: 1092, y: 549 },
+      { key: 'city_smallpillardark', x: 810, y: 290 },
+      { key: 'city_smallpillar', x: 570, y: 450 },
+      { key: 'city_smallpillardark', x: 811, y: 537 },
+      { key: 'city_city_decorations_final_sprites_0053_Layer-52-copy', x: 880, y: 388 },
+      { key: 'citytree_tree1e', x: 1118, y: 101 },
+    ];
+
+    // Render all city decoration items with y-depth sorting
+    for (const item of cityItems) {
+      if (this.textures.exists(item.key)) {
+        this.add.image(item.x, item.y, item.key).setScale(0.5).setDepth(item.y);
+      }
+    }
+
+    // === FOREGROUND with depth strips + collision (buildings from foreground PNG) ===
+    const fgResult = buildForegroundStrips(this, 'city_fg', W, H);
+    this._fgCollision = fgResult.collisionRects;
+
     // Navigation label
     this.leftLabel = this.add.text(30, H / 2, '< LAKE', {
       fontSize: '12px', fontFamily: 'Courier New', color: '#53d769',
@@ -2270,10 +2553,10 @@ class CityScene extends Phaser.Scene {
     gameState._spawnX = null; gameState._spawnY = null;
 
     if (this.textures.exists(texKey)) {
-      this.player = this.add.sprite(startX, startY, texKey).setScale(1.33).setDepth(10000);
+      this.player = this.add.sprite(startX, startY, texKey).setScale(1.33).setDepth(startY);
       this.player.play(texKey + '_idle_down');
     } else {
-      this.player = this.add.sprite(startX, startY, '__DEFAULT').setScale(1.33).setDepth(10000);
+      this.player = this.add.sprite(startX, startY, '__DEFAULT').setScale(1.33).setDepth(startY);
       this.player._pendingTexKey = texKey;
     }
     this.playerDir = 'down';
@@ -2308,9 +2591,21 @@ class CityScene extends Phaser.Scene {
 
     const isMoving = dx !== 0 || dy !== 0;
     if (isMoving) {
-      this.player.x = Phaser.Math.Clamp(this.player.x + dx, 20, 1356);
-      this.player.y = Phaser.Math.Clamp(this.player.y + dy, 20, 732);
-      this.player.setDepth(this.player.y + 10000);
+      let newX = Phaser.Math.Clamp(this.player.x + dx, 20, 1356);
+      let newY = Phaser.Math.Clamp(this.player.y + dy, 20, 732);
+
+      // === FOREGROUND COLLISION ===
+      if (this._fgCollision && this._fgCollision.length > 0) {
+        if (checkForegroundCollision(this._fgCollision, newX, newY)) {
+          if (!checkForegroundCollision(this._fgCollision, newX, this.player.y)) { newY = this.player.y; }
+          else if (!checkForegroundCollision(this._fgCollision, this.player.x, newY)) { newX = this.player.x; }
+          else { newX = this.player.x; newY = this.player.y; }
+        }
+      }
+
+      this.player.x = newX;
+      this.player.y = newY;
+      this.player.setDepth(this.player.y);
       this.playerLabel.setPosition(this.player.x, this.player.y - 38);
       if (time - this.moveTimer > 50) {
         this.moveTimer = time;
