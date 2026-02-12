@@ -2080,10 +2080,18 @@ class MarketplaceScene extends Phaser.Scene {
       // Lake water area defined as polygon rects matching the blue pixels
       // Dock/entry platform at top-left of lake
       const LAKE_RECTS = [
-        { x1: 510, y1: 230, x2: 850, y2: 410 },  // main body
-        { x1: 850, y1: 250, x2: 880, y2: 370 },   // right extension near house
+        // Top section of lake (narrower right side at top)
+        { x1: 525, y1: 225, x2: 830, y2: 260 },
+        // Main wide body of lake
+        { x1: 525, y1: 260, x2: 870, y2: 310 },
+        // Middle section
+        { x1: 525, y1: 310, x2: 870, y2: 360 },
+        // Lower-mid section (starts narrowing on right near building)
+        { x1: 525, y1: 360, x2: 840, y2: 390 },
+        // Bottom strip (narrower, building cuts in from right)
+        { x1: 535, y1: 390, x2: 810, y2: 415 },
       ];
-      const DOCK = { x1: 475, y1: 215, x2: 548, y2: 255 }; // wooden dock entry
+      const DOCK = { x1: 480, y1: 215, x2: 548, y2: 260 }; // wooden dock entry
       const inLake = (px, py) => {
         for (const r of LAKE_RECTS) {
           if (px > r.x1 && px < r.x2 && py > r.y1 && py < r.y2) return true;
